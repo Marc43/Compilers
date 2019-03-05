@@ -38,7 +38,7 @@ program : function+ EOF
 
 // A function has a name, a list of parameters and a list of statements
 function
-        : FUNC ID '('((variable_decl',')* variable_decl)')' declarations statements ENDFUNC
+        : FUNC ID '('((variable_decl',')* variable_decl)?')' declarations statements ENDFUNC
         ;
 
 declarations
@@ -46,7 +46,7 @@ declarations
         ;
 
 variable_decl
-        : VAR ID ':' type
+        : VAR ID (','ID)* ':' type
         | VAR ID ':' 'array' '['expr']' 'of' type
         ;
 
@@ -68,32 +68,30 @@ statement
           // if-then-else statement (else is optional)
         | IF expr THEN statements ENDIF       # ifStmt
           // A function/procedure call has a list of arguments in parenthesis (possibly empty)
-        | ident '(' ')' ';'                   # procCall
+        | ident '('((ID',')*ID)? ')' ';'               # procCall
           // Read a variable
         | READ left_expr ';'                  # readStmt
           // Write an expression
         | WRITE expr ';'                      # writeExpr
           // Write a string
         | WRITE STRING ';'                    # writeString
-        ;
-
-returnFunction
-        //Return from a function
-        : RETURN expr                         # returnStmt  
+          // Return statement
+        | RETURN expr                         # returnStmt
         ;
 
 // Grammar for left expressions (l-values in C++)
 left_expr
-        : ident'['expr']'                     # indexArray
-        | ident
+        : ident'['expr']'                     # indexArrayLeftExpr
+        | ident                               # identifier
         ;
 
-expr    : (op=NOT|op=PLUS|op=SUB) expr        # unary 
+expr    : ident'['expr']'                     # indexArrayExpr
+        | (op=NOT|op=PLUS|op=SUB) expr        # unary 
         | expr (op=MUL|op=DIV|op=MOD) expr    # arithmetic
         | expr (op=PLUS|op=SUB) expr          # arithmetic
 
-        | expr (op=EQUAL|op=DIFF|op=GTU
-                op=GT|op=LT|op=LTU) expr      # relational
+        | expr (op=EQUAL|op=DIFF|op=GTE
+                op=GT|op=LT|op=LTE) expr      # relational
        
         | expr op=AND expr                    # boolean
         | expr op=OR  expr                    # boolean
