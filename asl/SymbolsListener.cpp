@@ -1,3 +1,4 @@
+
 //////////////////////////////////////////////////////////////////////
 //
 //    SymbolsListener - Walk the parser tree to register symbols
@@ -96,10 +97,40 @@ void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
 void SymbolsListener::enterDeclarations(AslParser::DeclarationsContext *ctx) {
   DEBUG_ENTER();
 }
+
 void SymbolsListener::exitDeclarations(AslParser::DeclarationsContext *ctx) {
   DEBUG_EXIT();
 }
 
+void SymbolsListener::enterBasicDecl(AslParser::BasicDeclContext *ctx) {
+  DEBUG_ENTER();
+}
+
+void SymbolsListener::exitBasicDecl(AslParser::BasicDeclContext *ctx) {
+  for (auto sdechoque : ctx->ID()) {
+      std::string ident = sdechoque->getText();
+      if (Symbols.findInCurrentScope(ident)) {
+       Errors.declaredIdent(sdechoque);
+      }
+      else {
+       TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
+       Symbols.addLocalVar(ident, t1);
+      }
+  }
+  DEBUG_EXIT();
+}
+
+void SymbolsListener::enterArrayDecl(AslParser::ArrayDeclContext *ctx) {
+  DEBUG_ENTER();
+}
+
+void SymbolsListener::exitArrayDecl(AslParser::ArrayDeclContext *ctx) {
+  DEBUG_EXIT();
+  std::string array_size = ctx->expr()->getText();
+  std::cout << array_size << std::endl;
+}
+
+/*
 void SymbolsListener::enterVariable_decl(AslParser::Variable_declContext *ctx) {
   DEBUG_ENTER();
 }
@@ -113,7 +144,7 @@ void SymbolsListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
     Symbols.addLocalVar(ident, t1);
   }
   DEBUG_EXIT();
-}
+}*/
 
 void SymbolsListener::enterType(AslParser::TypeContext *ctx) {
   DEBUG_ENTER();

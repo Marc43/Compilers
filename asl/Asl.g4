@@ -46,8 +46,8 @@ declarations
         ;
 
 variable_decl
-        : VAR ID (','ID)* ':' type
-        | VAR ID ':' 'array' '['expr']' 'of' type
+        : VAR ID (','ID)* ':' type              # basicDecl
+        | VAR ID ':' ARRAY '['expr']' OF type   # arrayDecl
         ;
 
 //Tipos básicos
@@ -68,7 +68,7 @@ statement
           // if-then-else statement (else is optional)
         | IF expr THEN statements ENDIF       # ifStmt
           // A function/procedure call has a list of arguments in parenthesis (possibly empty)
-        | ident '('((ID',')*ID)? ')' ';'               # procCall
+        | ident '('((ID',')*ID)? ')' ';'      # procCall
           // Read a variable
         | READ left_expr ';'                  # readStmt
           // Write an expression
@@ -108,6 +108,8 @@ ident   : ID
 /// Lexer Rules
 //////////////////////////////////////////////////
 
+OF        : 'of';
+ARRAY     : 'array';
 NOT       : 'not';
 AND       : 'and';
 OR        : 'or';

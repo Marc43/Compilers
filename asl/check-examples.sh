@@ -19,6 +19,8 @@ echo "END   examples-initial/typecheck"
 # done
 # echo "END   examples-full/typecheck"
 
+exit 1
+
 echo ""
 echo "BEGIN examples-initial/codegen"
 for f in ../examples/jpbasic_genc_*.asl; do

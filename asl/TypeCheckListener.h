@@ -68,8 +68,11 @@ public:
   void enterDeclarations(AslParser::DeclarationsContext *ctx);
   void exitDeclarations(AslParser::DeclarationsContext *ctx);
 
-  void enterVariable_decl(AslParser::Variable_declContext *ctx);
-  void exitVariable_decl(AslParser::Variable_declContext *ctx);
+  void enterBasicDecl(AslParser::BasicDeclContext *ctx);
+  void exitBasicDecl(AslParser::BasicDeclContext *ctx);
+
+  void enterArrayDecl(AslParser::ArrayDeclContext *ctx);
+  void exitArrayDecl(AslParser::ArrayDeclContext *ctx);
 
   void enterType(AslParser::TypeContext *ctx);
   void exitType(AslParser::TypeContext *ctx);
@@ -95,11 +98,26 @@ public:
   void enterWriteString(AslParser::WriteStringContext *ctx);
   void exitWriteString(AslParser::WriteStringContext *ctx);
 
-  void enterLeft_expr(AslParser::Left_exprContext *ctx);
-  void exitLeft_expr(AslParser::Left_exprContext *ctx);
+  void enterReturnStmt(AslParser::ReturnStmtContext *ctx);
+  void exitReturnStmt(AslParser::ReturnStmtContext *ctx);
 
+  void enterIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx);
+  void exitIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx);
+ 
+  void enterIdentifier(AslParser::IdentifierContext *ctx);
+  void exitIdentifier(AslParser::IdentifierContext *ctx);
+
+  void enterIndexArrayExpr(AslParser::IndexArrayExprContext *ctx);
+  void exitIndexArrayExpr(AslParser::IndexArrayExprContext *ctx);
+  
   void enterArithmetic(AslParser::ArithmeticContext *ctx);
   void exitArithmetic(AslParser::ArithmeticContext *ctx);
+
+  void enterUnary(AslParser::UnaryContext *ctx);
+  void exitUnary(AslParser::UnaryContext *ctx);
+
+  void enterBoolean(AslParser::BooleanContext *ctx);
+  void exitBoolean(AslParser::BooleanContext *ctx);
 
   void enterRelational(AslParser::RelationalContext *ctx);
   void exitRelational(AslParser::RelationalContext *ctx);

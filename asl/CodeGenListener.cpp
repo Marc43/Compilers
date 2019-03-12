@@ -90,15 +90,28 @@ void CodeGenListener::exitDeclarations(AslParser::DeclarationsContext *ctx) {
   DEBUG_EXIT();
 }
 
-void CodeGenListener::enterVariable_decl(AslParser::Variable_declContext *ctx) {
+/*void CodeGenListener::enterVariable_decl(AslParser::Variable_declContext *ctx) {
   DEBUG_ENTER();
 }
 void CodeGenListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
   subroutine       & subrRef = Code.get_last_subroutine();
   TypesMgr::TypeId        t1 = getTypeDecor(ctx->type());
   std::size_t           size = Types.getSizeOfType(t1);
-  subrRef.add_var(ctx->ID()->getText(), size);
+  subrRef.add_var(ctx->ID()->getText(), size); //Añadir variable a la subrutina
+   
   DEBUG_EXIT();
+}*/
+
+void CodeGenListener::enterBasicDecl(AslParser::BasicDeclContext *ctx) {
+}
+
+void CodeGenListener::exitBasicDecl(AslParser::BasicDeclContext *ctx) {
+}
+
+void CodeGenListener::enterArrayDecl(AslParser::ArrayDeclContext *ctx) {
+}
+
+void CodeGenListener::exitArrayDecl(AslParser::ArrayDeclContext *ctx) {
 }
 
 void CodeGenListener::enterType(AslParser::TypeContext *ctx) {
@@ -232,7 +245,7 @@ void CodeGenListener::exitWriteString(AslParser::WriteStringContext *ctx) {
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
-
+/*
 void CodeGenListener::enterLeft_expr(AslParser::Left_exprContext *ctx) {
   DEBUG_ENTER();
 }
@@ -242,7 +255,7 @@ void CodeGenListener::exitLeft_expr(AslParser::Left_exprContext *ctx) {
   putCodeDecor(ctx, getCodeDecor(ctx->ident()));
   DEBUG_ENTER();
 }
-
+*/
 void CodeGenListener::enterArithmetic(AslParser::ArithmeticContext *ctx) {
   DEBUG_ENTER();
 }

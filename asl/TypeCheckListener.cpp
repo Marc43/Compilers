@@ -88,10 +88,19 @@ void TypeCheckListener::exitDeclarations(AslParser::DeclarationsContext *ctx) {
   DEBUG_EXIT();
 }
 
-void TypeCheckListener::enterVariable_decl(AslParser::Variable_declContext *ctx) {
+void TypeCheckListener::enterBasicDecl(AslParser::BasicDeclContext *ctx) {
   DEBUG_ENTER();
 }
-void TypeCheckListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
+
+void TypeCheckListener::exitBasicDecl(AslParser::BasicDeclContext *ctx) {
+  DEBUG_EXIT();
+}
+
+void TypeCheckListener::enterArrayDecl(AslParser::ArrayDeclContext *ctx) {
+  DEBUG_ENTER();
+}
+
+void TypeCheckListener::exitArrayDecl(AslParser::ArrayDeclContext *ctx) {
   DEBUG_EXIT();
 }
 
@@ -174,16 +183,61 @@ void TypeCheckListener::exitWriteString(AslParser::WriteStringContext *ctx) {
   DEBUG_EXIT();
 }
 
-void TypeCheckListener::enterLeft_expr(AslParser::Left_exprContext *ctx) {
-  DEBUG_ENTER();
+void TypeCheckListener::enterIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx) {
+
 }
+
+void TypeCheckListener::exitIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx) {
+
+}
+
+void TypeCheckListener::enterIdentifier(AslParser::IdentifierContext *ctx) {
+
+}
+
+void TypeCheckListener::exitIdentifier(AslParser::IdentifierContext *ctx) {
+
+}
+
+void TypeCheckListener::enterUnary(AslParser::UnaryContext *ctx) {
+
+}
+
+void TypeCheckListener::exitUnary(AslParser::UnaryContext *ctx) {
+
+}
+
+void TypeCheckListener::enterBoolean(AslParser::BooleanContext *ctx) {
+
+}
+
+void TypeCheckListener::exitBoolean(AslParser::BooleanContext *ctx) {
+
+}
+
+void TypeCheckListener::enterIndexArrayExpr(AslParser::IndexArrayExprContext *ctx) {
+
+}
+
+void TypeCheckListener::exitIndexArrayExpr(AslParser::IndexArrayExprContext *ctx) {
+
+}
+
+void TypeCheckListener::enterReturnStmt(AslParser::ReturnStmtContext *ctx) {
+
+}
+
+void TypeCheckListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
+
+}  
+/*
 void TypeCheckListener::exitLeft_expr(AslParser::Left_exprContext *ctx) {
-  TypesMgr::TypeId t1 = getTypeDecor(ctx->ident());
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->left_expr());
   putTypeDecor(ctx, t1);
   bool b = getIsLValueDecor(ctx->ident());
   putIsLValueDecor(ctx, b);
   DEBUG_EXIT();
-}
+}*/
 
 void TypeCheckListener::enterArithmetic(AslParser::ArithmeticContext *ctx) {
   DEBUG_ENTER();
