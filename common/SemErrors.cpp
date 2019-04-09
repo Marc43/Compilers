@@ -124,8 +124,8 @@ void SemErrors::referenceableParameter(antlr4::ParserRuleContext *pCtx,
   ErrorList.push_back(error);
 }
 
-void SemErrors::incompatibleReturn(antlr4::ParserRuleContext *ctx) {
-  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Return with incompatible type.");
+void SemErrors::incompatibleReturn(antlr4::tree::TerminalNode *node) {
+  ErrorInfo error(node->getSymbol()->getLine(), node->getSymbol()->getCharPositionInLine(), "Return with incompatible type.");
   ErrorList.push_back(error);
 }
 

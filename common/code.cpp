@@ -18,7 +18,7 @@
 //    License along with this library; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 //
-//    contact: Lluis Padro (padro@cs.upc.es)
+//    contact: Lluis Padro (padro@cs.upc.edu)
 //             Computer Science Department
 //             Universitat Politecnica de Catalunya
 //             despatx Omega.320 - Campus Nord UPC

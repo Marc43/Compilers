@@ -96,9 +96,8 @@ public:
   void referenceableParameter       (antlr4::ParserRuleContext *pCtx,
 				     unsigned int n,
 				     antlr4::ParserRuleContext *cCtx);
-  //   ctx is the node of the expression when it exists,
-  //   otherwise ctx is the node of the return instruction
-  void incompatibleReturn           (antlr4::ParserRuleContext *ctx);
+  //   node is the terminal node correspondig to the token RETURN
+  void incompatibleReturn           (antlr4::tree::TerminalNode *node);
   //   ctx is the read or write instruction
   void readWriteRequireBasic        (antlr4::ParserRuleContext *ctx);
   //   ctx is the instruction that needs a referenceable expression

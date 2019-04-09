@@ -165,6 +165,15 @@ TypesMgr::TypeId SymTable::getType(const std::string & ident) const {
   return Types.createErrorTy();
 }
 
+// Accessor/Mutator to the attribute currFunctionType
+TypesMgr::TypeId SymTable::getCurrentFunctionTy() const {
+  return currFunctionType;
+}
+
+void SymTable::setCurrentFunctionTy(TypesMgr::TypeId type) {
+  currFunctionType = type;
+}
+
 // Writes the contents of the current scope (top of the stack)
 // on the standard output.
 void SymTable::printCurrentScope() const {
@@ -183,15 +192,6 @@ void SymTable::print() const {
     ScopesVec[sc].print(Types);
   }
   std::cout << "----------------" << std::endl;
-}
-
-// Returns the type (TypeId) of the function whose scope is
-// on top of the stack
-TypesMgr::TypeId SymTable::getCurrentFunctionTy() const {
-  assert(not ScopeIdsStack.empty());
-  ScopeId currScope = ScopeIdsStack.back();
-  std::string name = ScopesVec[currScope].getName();
-  return ScopesVec[0].getType(name);
 }
 
 bool SymTable::noMainProperlyDeclared() const {
