@@ -77,9 +77,10 @@ public:
   void enterArrayDecl(AslParser::ArrayDeclContext *ctx);
   void exitArrayDecl(AslParser::ArrayDeclContext *ctx);
 
-
+/*
   void enterVariable_decl(AslParser::Variable_declContext *ctx);
   void exitVariable_decl(AslParser::Variable_declContext *ctx);
+*/
 
   void enterType(AslParser::TypeContext *ctx);
   void exitType(AslParser::TypeContext *ctx);
@@ -114,8 +115,8 @@ public:
   void enterRelational(AslParser::RelationalContext *ctx);
   void exitRelational(AslParser::RelationalContext *ctx);
 
-  void enterValue(AslParser::ValueContext *ctx);
-  void exitValue(AslParser::ValueContext *ctx);
+  void enterIntegervalue(AslParser::IntegervalueContext *ctx);
+  void exitIntegervalue(AslParser::IntegervalueContext *ctx);
 
   void enterExprIdent(AslParser::ExprIdentContext *ctx);
   void exitExprIdent(AslParser::ExprIdentContext *ctx);

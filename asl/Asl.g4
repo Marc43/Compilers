@@ -38,7 +38,7 @@ program : function+ EOF
 
 // A function has a name, a list of parameters and a list of statements
 function
-        : FUNC ID '('((variable_decl',')* variable_decl)?')' declarations statements ENDFUNC
+        : FUNC ident LPAREN ((decl',')* decl)? RPAREN (':' type)? declarations statements ENDFUNC
         ;
 
 declarations
@@ -46,8 +46,11 @@ declarations
         ;
 
 variable_decl
-        : VAR ID (','ID)* ':' type              # basicDecl
-        | VAR ID ':' ARRAY '['expr']' OF type   # arrayDecl
+        : VAR decl 
+        ;
+//LEER LOS COMENTARIOS DE AQUI PORFAVOR
+decl    : ID (','ID)* ':' type                    # basicDecl //Que se permita declarar mas de una nos puede llevar a problemas en los parametros!!! TODO 
+        | ID ':' ARRAY LCLAU expr RCLAU OF type   # arrayDecl
         ;
 
 //Tipos básicos
@@ -61,42 +64,63 @@ statements
         : (statement)*
         ;
 
+functioncall
+        : ident LPAREN((expr',')*expr)?RPAREN # procCall
+        ;
+
 // The different types of instructions
 statement
           // Assignment
         : left_expr ASSIGN expr ';'           # assignStmt
           // if-then-else statement (else is optional)
         | IF expr THEN statements ENDIF       # ifStmt
-          // A function/procedure call has a list of arguments in parenthesis (possibly empty)
-        | ident '('((ID',')*ID)? ')' ';'      # procCall
+
+        | WHILE expr DO statements ENDWHILE   # whileStmt
           // Read a variable
+        | functioncall ';'                    # funcStmt
+
         | READ left_expr ';'                  # readStmt
           // Write an expression
         | WRITE expr ';'                      # writeExpr
           // Write a string
         | WRITE STRING ';'                    # writeString
           // Return statement
-        | RETURN expr                         # returnStmt
+        | RETURN expr? ';'                    # returnStmt
+        ;
+
+array_access
+        : ident LCLAU expr RCLAU
         ;
 
 // Grammar for left expressions (l-values in C++)
 left_expr
-        : ident'['expr']'                     # indexArrayLeftExpr
+        : array_access                        # indexArrayLeftExpr
         | ident                               # identifier
         ;
 
-expr    : ident'['expr']'                     # indexArrayExpr
+expr    : LPAREN expr RPAREN                  # parenthesis
+
+        | functioncall                        # functionAsExpr
+
+        | array_access                        # indexArrayExpr
+
         | (op=NOT|op=PLUS|op=SUB) expr        # unary 
+
         | expr (op=MUL|op=DIV|op=MOD) expr    # arithmetic
         | expr (op=PLUS|op=SUB) expr          # arithmetic
 
-        | expr (op=EQUAL|op=DIFF|op=GTE
+        | expr (op=EQUAL|op=DIFF|op=GTE|
                 op=GT|op=LT|op=LTE) expr      # relational
        
-        | expr op=AND expr                    # boolean
-        | expr op=OR  expr                    # boolean
+        | expr (op=AND|op=OR) expr            # boolean
 
-        | INTVAL                              # value
+        | INTVAL                              # integervalue
+
+        | FLOATVAL                            # floatvalue
+
+        | CHARS                               # char
+
+        | (TRUE|FALSE)                        # booleanvalue
 
         | ident                               # exprIdent
         ;
@@ -108,6 +132,12 @@ ident   : ID
 /// Lexer Rules
 //////////////////////////////////////////////////
 
+TRUE      : 'true';
+FALSE     : 'false';
+LPAREN    : '(';
+RPAREN    : ')';
+LCLAU     : '[';
+RCLAU     : ']';
 OF        : 'of';
 ARRAY     : 'array';
 NOT       : 'not';
@@ -134,6 +164,9 @@ IF        : 'if' ;
 THEN      : 'then' ;
 ELSE      : 'else' ;
 ENDIF     : 'endif' ;
+WHILE     : 'while' ;
+DO        : 'do' ;
+ENDWHILE  : 'endwhile' ;
 FUNC      : 'func' ;
 ENDFUNC   : 'endfunc' ;
 READ      : 'read' ;
@@ -141,10 +174,11 @@ WRITE     : 'write' ;
 RETURN    : 'return';
 ID        : ('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')* ;
 INTVAL    : ('0'..'9')+ ;
+FLOATVAL  : ('0'..'9')+('.'('0'..'9')+)? ;
 
 // Strings (in quotes) with escape sequences
 STRING    : '"' ( ESC_SEQ | ~('\\'|'"') )* '"' ;
-
+CHARS     : '\''.?'\'';
 // No influyen en la gramática, son solo para simplificar...
 fragment
 ESC_SEQ   : '\\' ('b'|'t'|'n'|'f'|'r'|'"'|'\''|'\\') ;

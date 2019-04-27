@@ -68,7 +68,7 @@ void CodeGenListener::exitProgram(AslParser::ProgramContext *ctx) {
 
 void CodeGenListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
-  subroutine subr(ctx->ID()->getText());
+  subroutine subr(ctx->ident()->getText());
   Code.add_subroutine(subr);
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
@@ -299,10 +299,10 @@ void CodeGenListener::exitRelational(AslParser::RelationalContext *ctx) {
   DEBUG_EXIT();
 }
 
-void CodeGenListener::enterValue(AslParser::ValueContext *ctx) {
+void CodeGenListener::enterIntegervalue(AslParser::IntegervalueContext *ctx) {
   DEBUG_ENTER();
 }
-void CodeGenListener::exitValue(AslParser::ValueContext *ctx) {
+void CodeGenListener::exitIntegervalue(AslParser::IntegervalueContext *ctx) {
   instructionList code;
   std::string temp = "%"+codeCounters.newTEMP();
   code = instruction::ILOAD(temp, ctx->getText());

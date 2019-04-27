@@ -132,15 +132,15 @@ OBJECTS		= $(SOURCE.c:.c=.o) $(SOURCE.cc:.cc=.o) $(SOURCE.cpp:.cpp=.o)
 # ==== C++ stuff ====
 
 # Which compiler we are going to use
-CCC	= g++
-CXX	= g++
-CC 	= g++
+CCC	= g++-5
+CXX	= g++-5
+CC 	= g++-5
 
 # Tell compiler:
 # ... where to search for additional header files ...
 ifneq ($(strip $(SRCDIR) ),)	# if SRCDIR was defined
 #  ... our own headers files
-CPPFLAGS += -I. -I$(SRCDIR)
+CPPFLAGS += -I. -I$(SRCDIR) -g -ggdb
 endif
 ifneq ($(strip $(GENDIR) ),)
 #  ... antlr4 generated header files

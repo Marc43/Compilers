@@ -85,6 +85,9 @@ public:
 
   void enterIfStmt(AslParser::IfStmtContext *ctx);
   void exitIfStmt(AslParser::IfStmtContext *ctx);
+  
+  void enterWhileStmt(AslParser::WhileStmtContext *ctx);
+  void exitWhileStmt(AslParser::WhileStmtContext *ctx);
 
   void enterProcCall(AslParser::ProcCallContext *ctx);
   void exitProcCall(AslParser::ProcCallContext *ctx);
@@ -109,7 +112,10 @@ public:
 
   void enterIndexArrayExpr(AslParser::IndexArrayExprContext *ctx);
   void exitIndexArrayExpr(AslParser::IndexArrayExprContext *ctx);
-  
+ 
+  void enterLeft_expr(AslParser::Left_exprContext *ctx);
+  void exitLeft_expr(AslParser::Left_exprContext *ctx);
+ 
   void enterArithmetic(AslParser::ArithmeticContext *ctx);
   void exitArithmetic(AslParser::ArithmeticContext *ctx);
 
@@ -122,14 +128,29 @@ public:
   void enterRelational(AslParser::RelationalContext *ctx);
   void exitRelational(AslParser::RelationalContext *ctx);
 
-  void enterValue(AslParser::ValueContext *ctx);
-  void exitValue(AslParser::ValueContext *ctx);
+  void enterIntegervalue(AslParser::IntegervalueContext *ctx);
+  void exitIntegervalue(AslParser::IntegervalueContext *ctx);
+  
+  void enterFloatvalue(AslParser::FloatvalueContext *ctx);
+  void exitFloatvalue(AslParser::FloatvalueContext *ctx);
+  
+  void enterChar(AslParser::CharContext *ctx);
+  void exitChar(AslParser::CharContext *ctx);
+
+  void enterBooleanvalue(AslParser::BooleanvalueContext *ctx);
+  void exitBooleanvalue(AslParser::BooleanvalueContext *ctx);
 
   void enterExprIdent(AslParser::ExprIdentContext *ctx);
   void exitExprIdent(AslParser::ExprIdentContext *ctx);
 
   void enterIdent(AslParser::IdentContext *ctx);
   void exitIdent(AslParser::IdentContext *ctx);
+
+  void enterArray_access(AslParser::Array_accessContext *ctx);
+  void exitArray_access(AslParser::Array_accessContext *ctx);
+
+  void enterFunctionAsExpr(AslParser::FunctionAsExprContext *ctx);
+  void exitFunctionAsExpr(AslParser::FunctionAsExprContext *ctx);
 
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);

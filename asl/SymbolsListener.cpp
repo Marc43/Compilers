@@ -44,7 +44,7 @@
 #include <cstddef>    // std::size_t
 
 // uncomment the following line to enable debugging messages with DEBUG*
-// #define DEBUG_BUILD
+//#define DEBUG_BUILD
 #include "../common/debug.h"
 
 // using namespace std;
@@ -74,21 +74,74 @@ void SymbolsListener::exitProgram(AslParser::ProgramContext *ctx) {
 
 void SymbolsListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
-  std::string funcName = ctx->ID()->getText();
+  std::string funcName = ctx->ident()->ID()->getText();
   SymTable::ScopeId sc = Symbols.pushNewScope(funcName);
   putScopeDecor(ctx, sc);
 }
+
 void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
-  // Symbols.print();
   Symbols.popScope();
-  std::string ident = ctx->ID()->getText();
+  // Symbols.print();
+  std::string ident = ctx->ident()->ID()->getText();
   if (Symbols.findInCurrentScope(ident)) {
-    Errors.declaredIdent(ctx->ID());
+    Errors.declaredIdent(ctx->ident()->ID());
   }
   else {
+
+    /*  WARNING: Spaghetti Code in the following section,
+        be extremely careful !!!!!!!!!!!!!!!!!!!!!!!!!!!! */
+
     std::vector<TypesMgr::TypeId> lParamsTy;
-    TypesMgr::TypeId tRet = Types.createVoidTy();
+
+    for (auto declaration : ctx->decl()) {
+        AslParser::BasicDeclContext* basicdeclaration = dynamic_cast<AslParser::BasicDeclContext*>(declaration);
+        AslParser::ArrayDeclContext* arraydeclaration = dynamic_cast<AslParser::ArrayDeclContext*>(declaration);
+        //Me parece muy peligroso lo que pueda pasar aqui!!!
+
+        std::string ident;
+        TypesMgr::TypeId t;
+
+        if (basicdeclaration) {
+            t = getTypeDecor(basicdeclaration->type());
+        }
+        else if (arraydeclaration) {
+          int array_size = std::stoi(arraydeclaration->expr()->getText());
+
+          TypesMgr::TypeId aux = getTypeDecor(arraydeclaration->type());
+          t = Types.createArrayTy(array_size, aux);
+
+        }
+        else {
+            std::cout << "Error, no se ha podido castear a BasicDecl ni a ArrayDecl! SymbolsListener::exitFunction" << std::endl;
+        }
+            
+        lParamsTy.push_back(t);
+    }
+
+    TypesMgr::TypeId tRet;
+
+    if (ctx->type()) {
+        if (ctx->type()->INT()) {
+            tRet = Types.createIntegerTy();
+        }
+        else if (ctx->type()->FLOAT()) {
+            tRet = Types.createFloatTy();
+        }
+        else if (ctx->type()->BOOL()) {
+            tRet = Types.createBooleanTy();
+        }
+        else if (ctx->type()->CHAR()) {
+            tRet = Types.createCharacterTy();
+        }
+    }
+    else {
+        tRet = Types.createVoidTy();
+    }
+
     TypesMgr::TypeId tFunc = Types.createFunctionTy(lParamsTy, tRet);
+
+    putTypeDecor(ctx->ident(), tFunc);
+
     Symbols.addFunction(ident, tFunc);
   }
   DEBUG_EXIT();
@@ -107,17 +160,17 @@ void SymbolsListener::enterBasicDecl(AslParser::BasicDeclContext *ctx) {
 }
 
 void SymbolsListener::exitBasicDecl(AslParser::BasicDeclContext *ctx) {
-  for (auto sdechoque : ctx->ID()) {
-      std::string ident = sdechoque->getText();
-      if (Symbols.findInCurrentScope(ident)) {
-       Errors.declaredIdent(sdechoque);
-      }
-      else {
-       TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
-       Symbols.addLocalVar(ident, t1);
-      }
-  }
-  DEBUG_EXIT();
+    for (auto sdechoque : ctx->ID()) {
+        std::string ident = sdechoque->getText();
+        if (Symbols.findInCurrentScope(ident)) {
+            Errors.declaredIdent(sdechoque);
+        }
+        else {
+            TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
+            Symbols.addLocalVar(ident, t1);
+        }
+    }
+    DEBUG_EXIT();
 }
 
 void SymbolsListener::enterArrayDecl(AslParser::ArrayDeclContext *ctx) {
@@ -125,35 +178,55 @@ void SymbolsListener::enterArrayDecl(AslParser::ArrayDeclContext *ctx) {
 }
 
 void SymbolsListener::exitArrayDecl(AslParser::ArrayDeclContext *ctx) {
-  DEBUG_EXIT();
-  std::string array_size = ctx->expr()->getText();
-  std::cout << array_size << std::endl;
-}
-
-/*
-void SymbolsListener::enterVariable_decl(AslParser::Variable_declContext *ctx) {
-  DEBUG_ENTER();
-}
-void SymbolsListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
   std::string ident = ctx->ID()->getText();
+
   if (Symbols.findInCurrentScope(ident)) {
     Errors.declaredIdent(ctx->ID());
   }
   else {
-    TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
-    Symbols.addLocalVar(ident, t1);
-  }
+      int array_size = std::stoi(ctx->expr()->getText()); 
+      //TODO error management¿ No habría que calcular lo que fuera? Quiza la expr no se ha resulto hasta aqui..
+
+      TypesMgr::TypeId t;
+      if (ctx->type()->INT()) {
+          t = Types.createIntegerTy();
+      }
+      else if (ctx->type()->FLOAT()) {
+          t = Types.createFloatTy();  
+      } 
+      else if (ctx->type()->BOOL()) {
+          t = Types.createBooleanTy();
+      }
+      else if (ctx->type()->CHAR()) {
+          t = Types.createCharacterTy();
+      }
+      TypesMgr::TypeId array_type = Types.createArrayTy(array_size, t); 
+      //putTypeDecor(ctx, array_type);
+      Symbols.addLocalVar(ident, array_type);
+  } 
+
   DEBUG_EXIT();
-}*/
+  
+}
 
 void SymbolsListener::enterType(AslParser::TypeContext *ctx) {
   DEBUG_ENTER();
 }
 void SymbolsListener::exitType(AslParser::TypeContext *ctx) {
+  TypesMgr::TypeId t;
   if (ctx->INT()) {
-    TypesMgr::TypeId t = Types.createIntegerTy();
-    putTypeDecor(ctx, t);
+    t = Types.createIntegerTy();
   }
+  else if (ctx->FLOAT()) {
+    t = Types.createFloatTy();  
+  } 
+  else if (ctx->BOOL()) {
+    t = Types.createBooleanTy();
+  }
+  else if (ctx->CHAR()) {
+    t = Types.createCharacterTy();
+  }
+  putTypeDecor(ctx, t);
   DEBUG_EXIT();
 }
 
@@ -175,6 +248,18 @@ void SymbolsListener::enterIfStmt(AslParser::IfStmtContext *ctx) {
   DEBUG_ENTER();
 }
 void SymbolsListener::exitIfStmt(AslParser::IfStmtContext *ctx) {
+  DEBUG_EXIT();
+}
+
+void SymbolsListener::enterReturnStmt(AslParser::ReturnStmtContext *ctx) {
+  DEBUG_ENTER();
+}
+
+void SymbolsListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
+/*  TypesMgr::TypeId functype = Symbols.getCurrentFunctionTy();
+  TypesMgr::TypeId rettype  = Types.getFuncReturnType(functype);
+  putTypeDecor(ctx, rettype);*/
+
   DEBUG_EXIT();
 }
 
@@ -227,10 +312,10 @@ void SymbolsListener::exitRelational(AslParser::RelationalContext *ctx) {
   DEBUG_EXIT();
 }
 
-void SymbolsListener::enterValue(AslParser::ValueContext *ctx) {
+void SymbolsListener::enterIntegervalue(AslParser::IntegervalueContext *ctx) {
   DEBUG_ENTER();
 }
-void SymbolsListener::exitValue(AslParser::ValueContext *ctx) {
+void SymbolsListener::exitIntegervalue(AslParser::IntegervalueContext *ctx) {
   DEBUG_EXIT();
 }
 
