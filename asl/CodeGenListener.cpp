@@ -103,15 +103,34 @@ void CodeGenListener::exitVariable_decl(AslParser::Variable_declContext *ctx) {
 }*/
 
 void CodeGenListener::enterBasicDecl(AslParser::BasicDeclContext *ctx) {
+  DEBUG_ENTER();
 }
 
 void CodeGenListener::exitBasicDecl(AslParser::BasicDeclContext *ctx) {
+  
+  TypesMgr::TypeId        t1 = getTypeDecor(ctx->type());
+ 
+  for (auto identifier : ctx->ID()) {
+    subroutine       & subrRef = Code.get_last_subroutine();
+    std::size_t           size = Types.getSizeOfType(t1);
+    subrRef.add_var(identifier->getText(), size); //Añadir variable a la subrutina
+  } 
+
+  DEBUG_EXIT();
 }
 
 void CodeGenListener::enterArrayDecl(AslParser::ArrayDeclContext *ctx) {
+  DEBUG_ENTER();
 }
 
 void CodeGenListener::exitArrayDecl(AslParser::ArrayDeclContext *ctx) {
+
+  subroutine       & subrRef = Code.get_last_subroutine();
+  TypesMgr::TypeId        t1 = getTypeDecor(ctx->type());
+  std::size_t           size = Types.getSizeOfType(t1);
+  subrRef.add_var(ctx->ID()->getText(), size); //Añadir variable a la subrutina
+
+ DEBUG_EXIT();
 }
 
 void CodeGenListener::enterType(AslParser::TypeContext *ctx) {
@@ -329,6 +348,38 @@ void CodeGenListener::exitIdent(AslParser::IdentContext *ctx) {
   putAddrDecor(ctx, ctx->ID()->getText());
   putOffsetDecor(ctx, "");
   putCodeDecor(ctx, instructionList());
+  DEBUG_EXIT();
+}
+
+void CodeGenListener::enterIdentifier(AslParser::IdentifierContext *ctx) {
+  DEBUG_ENTER();
+}
+
+void CodeGenListener::exitIdentifier(AslParser::IdentifierContext *ctx) {
+  putAddrDecor(ctx, getAddrDecor(ctx->ident()));
+  putOffsetDecor(ctx, getOffsetDecor(ctx->ident()));
+  putCodeDecor(ctx, getCodeDecor(ctx->ident()));
+
+  DEBUG_EXIT();
+}
+
+
+void CodeGenListener::enterFunctioncall(AslParser::FunctioncallContext *ctx) {
+  DEBUG_ENTER();
+}
+
+void CodeGenListener::exitFunctioncall(AslParser::FunctioncallContext *ctx) {
+  DEBUG_EXIT();
+}
+  
+void CodeGenListener::enterFuncStmt(AslParser::FuncStmtContext *ctx) {
+  DEBUG_ENTER();
+}
+  
+void CodeGenListener::exitFuncStmt(AslParser::FuncStmtContext *ctx) {
+  putAddrDecor(ctx, getAddrDecor(ctx->functioncall()));
+  putOffsetDecor(ctx, getOffsetDecor(ctx->functioncall()));
+  putCodeDecor(ctx, getCodeDecor(ctx->functioncall()));
   DEBUG_EXIT();
 }
 

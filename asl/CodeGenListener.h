@@ -121,8 +121,17 @@ public:
   void enterExprIdent(AslParser::ExprIdentContext *ctx);
   void exitExprIdent(AslParser::ExprIdentContext *ctx);
 
+  void enterIdentifier(AslParser::IdentifierContext *ctx);
+  void exitIdentifier(AslParser::IdentifierContext *ctx);
+
   void enterIdent(AslParser::IdentContext *ctx);
   void exitIdent(AslParser::IdentContext *ctx);
+
+  void enterFunctioncall(AslParser::FunctioncallContext *ctx);
+  void exitFunctioncall(AslParser::FunctioncallContext *ctx);
+
+  void enterFuncStmt(AslParser::FuncStmtContext *ctx);
+  void exitFuncStmt(AslParser::FuncStmtContext *ctx);
 
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);
