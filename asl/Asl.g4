@@ -49,8 +49,8 @@ variable_decl
         : VAR decl 
         ;
 //LEER LOS COMENTARIOS DE AQUI PORFAVOR
-decl    : ID (','ID)* ':' type                    # basicDecl //Que se permita declarar mas de una nos puede llevar a problemas en los parametros!!! TODO 
-        | ID ':' ARRAY LCLAU expr RCLAU OF type   # arrayDecl
+decl    : ID (','ID)* ':' ARRAY LCLAU expr RCLAU OF type   # arrayDecl
+	| ID (','ID)* ':' type                    # basicDecl //Que se permita declarar mas de una nos puede llevar a problemas en los parametros!!! TODO 
         ;
 
 //Tipos básicos

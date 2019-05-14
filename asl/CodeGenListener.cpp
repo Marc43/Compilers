@@ -128,7 +128,8 @@ void CodeGenListener::exitArrayDecl(AslParser::ArrayDeclContext *ctx) {
   subroutine       & subrRef = Code.get_last_subroutine();
   TypesMgr::TypeId        t1 = getTypeDecor(ctx->type());
   std::size_t           size = Types.getSizeOfType(t1);
-  subrRef.add_var(ctx->ID()->getText(), size); //Añadir variable a la subrutina
+  subrRef.add_var(ctx->ID(0)->getText(), size); //Añadir variable a la subrutina
+  std::cout << "hay que recorrer todas las variables titu..." << std::endl;
 
  DEBUG_EXIT();
 }

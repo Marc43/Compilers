@@ -2,7 +2,7 @@
 //
 //    SemErrors - Semantic errors for the Asl programming language
 //
-//    Copyright (C) 2018  Universitat Politecnica de Catalunya
+//    Copyright (C) 2019  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -39,11 +39,11 @@
 ////////////////////////////////////////////////////////////////
 // Class SemErrors: this class contains methods that emit
 // semantic error messages with their localization.
-// It is used by the semantic listeners:
-//   - SymbolsListener
-//   - TypeCheckListener
+// It is used by the semantic visitors:
+//   - SymbolsVisitor
+//   - TypeCheckVisitor
 // Semantic errors emitted are kept in a vector and when the
-// typecheck finishes they will be printed (sorted by line number)
+// typecheck finishes they will be printed (sorted by line/column number)
 
 class SemErrors {
 
@@ -113,6 +113,7 @@ private:
     ErrorInfo() = delete;
     ErrorInfo(std::size_t line, std::size_t coln, std::string message);
     std::size_t getLine() const;
+    std::size_t getColumnInLine() const;
     void print() const;
   private:
     std::size_t line, coln;

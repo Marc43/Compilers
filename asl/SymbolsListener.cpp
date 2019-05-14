@@ -178,32 +178,38 @@ void SymbolsListener::enterArrayDecl(AslParser::ArrayDeclContext *ctx) {
 }
 
 void SymbolsListener::exitArrayDecl(AslParser::ArrayDeclContext *ctx) {
-  std::string ident = ctx->ID()->getText();
 
-  if (Symbols.findInCurrentScope(ident)) {
-    Errors.declaredIdent(ctx->ID());
+  for (auto sdechoque : ctx->ID()) {
+		  
+		 std::string ident = sdechoque->getText();
+
+		  if (Symbols.findInCurrentScope(ident)) {
+			Errors.declaredIdent(sdechoque);
+		  }
+		  else {
+			  int array_size = std::stoi(ctx->expr()->getText()); 
+			  //TODO error management¿ No habría que calcular lo que fuera? Quiza la expr no se ha resulto hasta aqui..
+
+			  TypesMgr::TypeId t;
+			  if (ctx->type()->INT()) {
+				  t = Types.createIntegerTy();
+			  }
+			  else if (ctx->type()->FLOAT()) {
+				  t = Types.createFloatTy();  
+			  } 
+			  else if (ctx->type()->BOOL()) {
+				  t = Types.createBooleanTy();
+			  }
+			  else if (ctx->type()->CHAR()) {
+				  t = Types.createCharacterTy();
+			  }
+			  TypesMgr::TypeId array_type = Types.createArrayTy(array_size, t); 
+			  //putTypeDecor(ctx, array_type);
+			  Symbols.addLocalVar(ident, array_type);
+		  } 
+
   }
-  else {
-      int array_size = std::stoi(ctx->expr()->getText()); 
-      //TODO error management¿ No habría que calcular lo que fuera? Quiza la expr no se ha resulto hasta aqui..
 
-      TypesMgr::TypeId t;
-      if (ctx->type()->INT()) {
-          t = Types.createIntegerTy();
-      }
-      else if (ctx->type()->FLOAT()) {
-          t = Types.createFloatTy();  
-      } 
-      else if (ctx->type()->BOOL()) {
-          t = Types.createBooleanTy();
-      }
-      else if (ctx->type()->CHAR()) {
-          t = Types.createCharacterTy();
-      }
-      TypesMgr::TypeId array_type = Types.createArrayTy(array_size, t); 
-      //putTypeDecor(ctx, array_type);
-      Symbols.addLocalVar(ident, array_type);
-  } 
 
   DEBUG_EXIT();
   

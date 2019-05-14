@@ -43,6 +43,7 @@ void SemErrors::print() {
 }
 
 bool SemErrors::less(const ErrorInfo & e1, const ErrorInfo & e2) {
+  if (e1.getLine() == e2.getLine()) return e1.getColumnInLine() < e2.getColumnInLine();
   return e1.getLine() < e2.getLine();
 }
 
@@ -154,4 +155,8 @@ void SemErrors::ErrorInfo::print() const {
 
 std::size_t SemErrors::ErrorInfo::getLine() const {
   return line;
+}
+
+std::size_t SemErrors::ErrorInfo::getColumnInLine() const {
+  return coln;
 }
