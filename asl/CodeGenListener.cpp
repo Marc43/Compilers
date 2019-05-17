@@ -291,11 +291,33 @@ void CodeGenListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
   std::string temp = "%"+codeCounters.newTEMP();
   if (ctx->MUL())
     code = code || instruction::MUL(temp, addr1, addr2);
-  else // (ctx->PLUS())
+  else if (ctx->PLUS())
     code = code || instruction::ADD(temp, addr1, addr2);
+  else if (ctx->DIV())
+    code = code || instruction::DIV(temp, addr1, addr2);
+  else if (ctx->MOD()) {	
+    code = code || instruction::DIV(temp, addr1, addr2);
+    code = code || instruction::MUL(temp, temp, addr2);
+    code = code || instruction::SUB(temp, addr1, temp);
+    //TODO Must be checked someday
+  }
+  else if (ctx->SUB())
+    code = code || instruction::SUB(temp, addr1, addr2);
+
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, "");
   putCodeDecor(ctx, code);
+  DEBUG_EXIT();
+}
+  
+void CodeGenListener::enterParenthesis(AslParser::ParenthesisContext *ctx) {
+  DEBUG_ENTER();
+}
+  
+void CodeGenListener::exitParenthesis(AslParser::ParenthesisContext *ctx) {
+  putAddrDecor(ctx, getAddrDecor(ctx->expr()));
+  putOffsetDecor(ctx, getOffsetDecor(ctx->expr()));
+  putCodeDecor(ctx, getCodeDecor(ctx->expr()));
   DEBUG_EXIT();
 }
 
@@ -312,7 +334,52 @@ void CodeGenListener::exitRelational(AslParser::RelationalContext *ctx) {
   // TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
   // TypesMgr::TypeId t  = getTypeDecor(ctx);
   std::string temp = "%"+codeCounters.newTEMP();
-  code = code || instruction::EQ(temp, addr1, addr2);
+  if (ctx->EQUAL())
+    code = code || instruction::EQ(temp, addr1, addr2);
+  else if (ctx->DIFF()) {
+    code = code || instruction::EQ(temp, addr1, addr2);
+    code = code || instruction::NOT(temp, temp);
+  }
+  else if (ctx->GTE()) {
+    code = code || instruction::LT(temp, addr1, addr2);    
+    code = code || instruction::NOT(temp, temp);    
+  }
+  else if (ctx->GT()) {
+    code = code || instruction::LE(temp, addr1, addr2);    
+    code = code || instruction::NOT(temp, temp);    
+  }
+  else if (ctx->LTE()) {
+    code = code || instruction::LE(temp, addr1, addr2);    
+  }
+  else if (ctx->LT()) {
+    code = code || instruction::LT(temp, addr1, addr2);    
+  }
+
+  putAddrDecor(ctx, temp);
+  putOffsetDecor(ctx, "");
+  putCodeDecor(ctx, code);
+  DEBUG_EXIT();
+}  
+
+void CodeGenListener::enterBoolean(AslParser::BooleanContext* ctx) {
+  DEBUG_ENTER();
+}
+
+void CodeGenListener::exitBoolean(AslParser::BooleanContext *ctx) {
+  std::string     addr1 = getAddrDecor(ctx->expr(0));
+  instructionList code1 = getCodeDecor(ctx->expr(0));
+  std::string     addr2 = getAddrDecor(ctx->expr(1));
+  instructionList code2 = getCodeDecor(ctx->expr(1));
+  instructionList code  = code1 || code2;
+  std::string temp = "%"+codeCounters.newTEMP();
+
+  if (ctx->AND()) {
+    code = code || instruction::AND(temp, addr1, addr2);
+  }
+  else if (ctx->OR()) {
+    code = code || instruction::OR(temp, addr1, addr2);
+  }
+
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, "");
   putCodeDecor(ctx, code);

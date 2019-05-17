@@ -132,6 +132,12 @@ public:
 
   void enterFuncStmt(AslParser::FuncStmtContext *ctx);
   void exitFuncStmt(AslParser::FuncStmtContext *ctx);
+  
+  void enterParenthesis(AslParser::ParenthesisContext *ctx);
+  void exitParenthesis(AslParser::ParenthesisContext *ctx);
+  
+  void enterBoolean(AslParser::BooleanContext *ctx);
+  void exitBoolean(AslParser::BooleanContext *ctx);
 
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);
