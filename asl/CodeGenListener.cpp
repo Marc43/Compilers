@@ -174,6 +174,7 @@ void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
 void CodeGenListener::enterIfStmt(AslParser::IfStmtContext *ctx) {
   DEBUG_ENTER();
 }
+
 void CodeGenListener::exitIfStmt(AslParser::IfStmtContext *ctx) {
   instructionList   code;
   std::string      addr1 = getAddrDecor(ctx->expr());
@@ -184,6 +185,24 @@ void CodeGenListener::exitIfStmt(AslParser::IfStmtContext *ctx) {
   code = code1 || instruction::FJUMP(addr1, labelEndIf) ||
          code2 || instruction::LABEL(labelEndIf);
   putCodeDecor(ctx, code);
+  DEBUG_EXIT();
+}
+
+void CodeGenListener::enterWhileStmt(AslParser::WhileStmtContext *ctx) {
+  DEBUG_ENTER();
+}
+
+void CodeGenListener::exitWhileStmt(AslParser::WhileStmtContext *ctx) {
+  instructionList   code;
+  std::string      addr1 = getAddrDecor(ctx->expr());
+  instructionList  code1 = getCodeDecor(ctx->expr());
+  instructionList  code2 = getCodeDecor(ctx->statements());
+  std::string      label = codeCounters.newLabelIF();
+  std::string labelEndIf = "endif"+label;
+  code = code1 || instruction::FJUMP(addr1, labelEndIf) ||
+         code2 || instruction::LABEL(labelEndIf);
+  putCodeDecor(ctx, code);
+  DEBUG_EXIT();
   DEBUG_EXIT();
 }
 
@@ -486,7 +505,28 @@ void CodeGenListener::enterFloatvalue(AslParser::FloatvalueContext *ctx) {
 void CodeGenListener::exitFloatvalue(AslParser::FloatvalueContext *ctx) {
   instructionList code;
   std::string temp = "%"+codeCounters.newTEMP();
-  code = instruction::FLOAD(temp, ctx->getText());
+  code = instruction::ILOAD(temp, ctx->getText());
+  putAddrDecor(ctx, temp);
+  putOffsetDecor(ctx, "");
+  putCodeDecor(ctx, code);
+  DEBUG_EXIT();
+}
+
+void CodeGenListener::enterBooleanvalue(AslParser::BooleanvalueContext *ctx) {
+  DEBUG_ENTER();
+}
+
+void CodeGenListener::exitBooleanvalue(AslParser::BooleanvalueContext *ctx) {
+  instructionList code;
+  std::string temp = "%"+codeCounters.newTEMP();
+  std::string true_false = ctx->getText();
+  if (true_false == "true") {
+    code = instruction::ILOAD(temp, "1");
+  }
+  else if (true_false == "false") {
+    code = instruction::ILOAD(temp, "0");
+  }
+
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, "");
   putCodeDecor(ctx, code);

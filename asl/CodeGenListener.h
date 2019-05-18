@@ -144,7 +144,12 @@ public:
 
   void enterFloatvalue(AslParser::FloatvalueContext *ctx);
   void exitFloatvalue(AslParser::FloatvalueContext *ctx);
+  
+  void enterBooleanvalue(AslParser::BooleanvalueContext *ctx);
+  void exitBooleanvalue(AslParser::BooleanvalueContext *ctx);
 
+  void enterWhileStmt(AslParser::WhileStmtContext *ctx);
+  void exitWhileStmt(AslParser::WhileStmtContext *ctx);
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);
   // void visitTerminal(antlr4::tree::TerminalNode *node);
