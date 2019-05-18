@@ -213,11 +213,23 @@ void CodeGenListener::exitIfStmt(AslParser::IfStmtContext *ctx) {
   instructionList   code;
   std::string      addr1 = getAddrDecor(ctx->expr());
   instructionList  code1 = getCodeDecor(ctx->expr());
-  instructionList  code2 = getCodeDecor(ctx->statements());
+  instructionList  code2 = getCodeDecor(ctx->statements(0));
   std::string      label = codeCounters.newLabelIF();
-  std::string labelEndIf = "endif"+label;
-  code = code1 || instruction::FJUMP(addr1, labelEndIf) ||
-         code2 || instruction::LABEL(labelEndIf);
+
+  if (ctx->statements(1)) {
+    //else 
+    std::string labelElse = "else"+label;
+    instructionList code3 = getCodeDecor(ctx->statements(1));
+    code = code1 || instruction::FJUMP(addr1, labelElse) ||
+           code2 || instruction::LABEL(labelElse)        || 
+           code3;
+  }
+  else {
+    std::string labelEndIf = "endif"+label;
+    code = code1 || instruction::FJUMP(addr1, labelEndIf) ||
+           code2 || instruction::LABEL(labelEndIf);
+  }
+
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }

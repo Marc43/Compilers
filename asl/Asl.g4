@@ -50,7 +50,7 @@ variable_decl
         ;
 //LEER LOS COMENTARIOS DE AQUI PORFAVOR
 decl    : ID (','ID)* ':' ARRAY LCLAU expr RCLAU OF type   # arrayDecl
-	| ID (','ID)* ':' type                    # basicDecl //Que se permita declarar mas de una nos puede llevar a problemas en los parametros!!! TODO 
+     	| ID (','ID)* ':' type                             # basicDecl //Que se permita declarar mas de una nos puede llevar a problemas en los parametros!!! TODO 
         ;
 
 //Tipos básicos
@@ -71,9 +71,9 @@ functioncall
 // The different types of instructions
 statement
           // Assignment
-        : left_expr ASSIGN expr ';'           # assignStmt
+        : left_expr ASSIGN expr ';'                             # assignStmt
           // if-then-else statement (else is optional)
-        | IF expr THEN statements ENDIF       # ifStmt
+        | IF expr THEN statements (ELSE statements)? ENDIF      # ifStmt
 
         | WHILE expr DO statements ENDWHILE   # whileStmt
           // Read a variable
