@@ -271,6 +271,7 @@ void CodeGenListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
 void CodeGenListener::enterProcCall(AslParser::ProcCallContext *ctx) {
   DEBUG_ENTER();
 }
+
 void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
   instructionList code;
   // std::string name = ctx->ident()->ID()->getSymbol()->getText();
@@ -283,8 +284,9 @@ void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
   }
 
   for (auto param : ctx->expr()) {
-    std::string addr = getAddrDecor(param);
-    code = code || instruction::PUSH(addr);
+    std::string addr =          getAddrDecor(param);
+    instructionList paramcode = getCodeDecor(param); 
+    code = code || paramcode || instruction::PUSH(addr);
     //TODO Surely we have to do some conversions...
   }
 
