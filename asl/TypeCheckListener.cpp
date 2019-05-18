@@ -372,7 +372,7 @@ void TypeCheckListener::exitUnary(AslParser::UnaryContext *ctx) {
         if ((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) {
             Errors.incompatibleOperator(ctx->op);
         }
-        t = Types.createIntegerTy(); //TODO que hay con los floats? me da mala espina!
+        t = t1;
         putTypeDecor(ctx, t);
     }
     else {
