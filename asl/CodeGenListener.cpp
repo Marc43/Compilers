@@ -132,10 +132,10 @@ void CodeGenListener::enterBasicDecl(AslParser::BasicDeclContext *ctx) {
 void CodeGenListener::exitBasicDecl(AslParser::BasicDeclContext *ctx) {
   
   TypesMgr::TypeId        t1 = getTypeDecor(ctx->type());
+  subroutine       & subrRef = Code.get_last_subroutine();
+  std::size_t           size = Types.getSizeOfType(t1);
  
   for (auto identifier : ctx->ID()) {
-    subroutine       & subrRef = Code.get_last_subroutine();
-    std::size_t           size = Types.getSizeOfType(t1);
     subrRef.add_var(identifier->getText(), size); //Añadir variable a la subrutina
   } 
 
@@ -149,12 +149,53 @@ void CodeGenListener::enterArrayDecl(AslParser::ArrayDeclContext *ctx) {
 void CodeGenListener::exitArrayDecl(AslParser::ArrayDeclContext *ctx) {
 
   subroutine       & subrRef = Code.get_last_subroutine();
+  
   TypesMgr::TypeId        t1 = getTypeDecor(ctx->type());
   std::size_t           size = Types.getSizeOfType(t1);
-  subrRef.add_var(ctx->ID(0)->getText(), size); //Añadir variable a la subrutina
-  std::cout << "hay que recorrer todas las variables titu..." << std::endl;
+
+  for (auto identifer : ctx->ID()) {
+    subrRef.add_var(identifer->getText(), size); //Añadir variable a la subrutina
+  }
 
  DEBUG_EXIT();
+}
+  
+void CodeGenListener::enterIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx) {
+  DEBUG_ENTER();
+}
+  
+void CodeGenListener::exitIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx) {
+  putAddrDecor(ctx, getAddrDecor(ctx->array_access()));
+  putOffsetDecor(ctx, getOffsetDecor(ctx->array_access()));
+  putCodeDecor(ctx, getCodeDecor(ctx->array_access()));
+  DEBUG_EXIT();
+}
+
+void CodeGenListener::enterIndexArrayExpr(AslParser::IndexArrayExprContext *ctx) {
+  DEBUG_ENTER();
+}
+  
+void CodeGenListener::exitIndexArrayExpr(AslParser::IndexArrayExprContext *ctx) {
+  putAddrDecor(ctx, getAddrDecor(ctx->array_access()));
+  putOffsetDecor(ctx, getOffsetDecor(ctx->array_access()));
+  putCodeDecor(ctx, getCodeDecor(ctx->array_access()));
+  DEBUG_EXIT();
+}
+  
+void CodeGenListener::enterArray_access(AslParser::Array_accessContext *ctx) {
+  DEBUG_ENTER();
+}
+  
+void CodeGenListener::exitArray_access(AslParser::Array_accessContext *ctx) {
+  //What you have to do is to populate the offset ([thisnumber]),
+  //but the code will be empty. 
+  std::string offset = getAddrDecor(ctx->expr());
+  instructionList code;
+
+  putAddrDecor(ctx, ctx->ident()->ID()->getText());
+  putOffsetDecor(ctx, offset);
+  putCodeDecor(ctx, code);
+  DEBUG_EXIT();
 }
 
 void CodeGenListener::enterType(AslParser::TypeContext *ctx) {
@@ -182,25 +223,22 @@ void CodeGenListener::enterAssignStmt(AslParser::AssignStmtContext *ctx) {
 void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
   instructionList  code;
   std::string     addr1 = getAddrDecor(ctx->left_expr());
-  // std::string     offs1 = getOffsetDecor(ctx->left_expr());
+  std::string     offs1 = getOffsetDecor(ctx->left_expr());
   instructionList code1 = getCodeDecor(ctx->left_expr());
-  // TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
+  TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
   std::string     addr2 = getAddrDecor(ctx->expr());
-  // std::string     offs2 = getOffsetDecor(ctx->expr());
+  std::string     offs2 = getOffsetDecor(ctx->expr());
   instructionList code2 = getCodeDecor(ctx->expr());
   TypesMgr::TypeId tid2 = getTypeDecor(ctx->expr());
 
-/*
-  if (Types.isFunctionTy(tid2)) {
-    if (not Types.isVoidFunction(tid2)) {
-      code = code1 || code2 || instruction::POP(addr1); 
-    }
+  if (Types.isArrayTy(tid1)) {
+    code = code1 || code2 || instruction::XLOAD(addr1, offs1, addr2);
   }
-  else
+  else {
     code = code1 || code2 || instruction::LOAD(addr1, addr2);
-*/
+  }
 
-  code = code1 || code2 || instruction::LOAD(addr1, addr2);
+
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }

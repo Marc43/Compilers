@@ -156,6 +156,15 @@ public:
 
   void enterFunctionAsExpr(AslParser::FunctionAsExprContext *ctx);
   void exitFunctionAsExpr(AslParser::FunctionAsExprContext *ctx);
+  
+  void enterIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx);
+  void exitIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx);
+
+  void enterIndexArrayExpr(AslParser::IndexArrayExprContext *ctx);
+  void exitIndexArrayExpr(AslParser::IndexArrayExprContext *ctx);
+  
+  void enterArray_access(AslParser::Array_accessContext *ctx);
+  void exitArray_access(AslParser::Array_accessContext *ctx);
 
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);

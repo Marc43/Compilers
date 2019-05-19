@@ -354,6 +354,7 @@ void TypeCheckListener::enterLeft_expr(AslParser::Left_exprContext *ctx) {
 }
 
 void TypeCheckListener::exitLeft_expr(AslParser::Left_exprContext *ctx) {
+  //TODO FALTA subir las cosas
   DEBUG_EXIT();
 }
 
