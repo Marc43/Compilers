@@ -176,9 +176,16 @@ void CodeGenListener::enterIndexArrayExpr(AslParser::IndexArrayExprContext *ctx)
 }
   
 void CodeGenListener::exitIndexArrayExpr(AslParser::IndexArrayExprContext *ctx) {
-  putAddrDecor(ctx, getAddrDecor(ctx->array_access()));
-  putOffsetDecor(ctx, getOffsetDecor(ctx->array_access()));
-  putCodeDecor(ctx, getCodeDecor(ctx->array_access()));
+  std::string addr     = getAddrDecor(ctx->array_access());
+  std::string offs     = getOffsetDecor(ctx->array_access());
+  instructionList code = getCodeDecor(ctx->array_access());
+
+  std::string temp = "%"+codeCounters.newTEMP();
+  code = code || instruction::LOADX(temp, addr, offs);
+
+  putAddrDecor(ctx, temp);
+  putOffsetDecor(ctx, offs);
+  putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
   
@@ -190,7 +197,7 @@ void CodeGenListener::exitArray_access(AslParser::Array_accessContext *ctx) {
   //What you have to do is to populate the offset ([thisnumber]),
   //but the code will be empty. 
   std::string offset = getAddrDecor(ctx->expr());
-  instructionList code;
+  instructionList code = getCodeDecor(ctx->expr());
 
   putAddrDecor(ctx, ctx->ident()->ID()->getText());
   putOffsetDecor(ctx, offset);
@@ -231,7 +238,7 @@ void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
   instructionList code2 = getCodeDecor(ctx->expr());
   TypesMgr::TypeId tid2 = getTypeDecor(ctx->expr());
 
-  if (Types.isArrayTy(tid1)) {
+  if (offs1 != "") { //Is an array access!
     code = code1 || code2 || instruction::XLOAD(addr1, offs1, addr2);
   }
   else {
@@ -333,11 +340,23 @@ void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
     code = instruction::PUSH();
   }
 
-  for (auto param : ctx->expr()) {
+ TypesMgr::TypeId function_type = getTypeDecor(ctx);
+ int i = 0;
+ 
+ for (auto param : ctx->expr()) {
     std::string addr =          getAddrDecor(param);
     instructionList paramcode = getCodeDecor(param); 
-    code = code || paramcode || instruction::PUSH(addr);
+    
+    instructionList conversioncode;
+    TypesMgr::TypeId originalparam_type = Types.getParameterType(function_type, i);
+    TypesMgr::TypeId passedparam_type   = getTypeDecor(param);  
+    if (Types.isFloatTy(originalparam_type) and Types.isIntegerTy(passedparam_type)) {
+        conversioncode = instruction::FLOAT(addr, addr);
+    }
+
+    code = code || paramcode || conversioncode || instruction::PUSH(addr);
     //TODO Surely we have to do some conversions...
+    i++;
   }
 
   code = code || instruction::CALL(name);
@@ -345,7 +364,6 @@ void CodeGenListener::exitProcCall(AslParser::ProcCallContext *ctx) {
   for (auto param : ctx->expr()) {
     std::string addr = getAddrDecor(param);
     code = code || instruction::POP();
-    //TODO Surely we have to do some conversions...
   }
   
   std::string temp = "";
@@ -631,8 +649,11 @@ void CodeGenListener::enterIntegervalue(AslParser::IntegervalueContext *ctx) {
 
 void CodeGenListener::exitIntegervalue(AslParser::IntegervalueContext *ctx) {
   instructionList code;
+
+  std::string ident = ctx->getText();
+
   std::string temp = "%"+codeCounters.newTEMP();
-  code = instruction::ILOAD(temp, ctx->getText());
+  code = instruction::ILOAD(temp, ident);
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, "");
   putCodeDecor(ctx, code);
@@ -646,7 +667,7 @@ void CodeGenListener::enterFloatvalue(AslParser::FloatvalueContext *ctx) {
 void CodeGenListener::exitFloatvalue(AslParser::FloatvalueContext *ctx) {
   instructionList code;
   std::string temp = "%"+codeCounters.newTEMP();
-  code = instruction::ILOAD(temp, ctx->getText());
+  code = instruction::FLOAD(temp, ctx->getText());
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, "");
   putCodeDecor(ctx, code);
