@@ -117,6 +117,12 @@ public:
   void enterReturnStmt(AslParser::ReturnStmtContext *ctx);
   void exitReturnStmt(AslParser::ReturnStmtContext *ctx);
 
+  void enterArrayParamDecl(AslParser::ArrayParamDeclContext *ctx);
+  void exitArrayParamDecl(AslParser::ArrayParamDeclContext *ctx);
+  
+  void enterBasicParamDecl(AslParser::BasicParamDeclContext *ctx);
+  void exitBasicParamDecl(AslParser::BasicParamDeclContext *ctx);
+
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);
   // void visitTerminal(antlr4::tree::TerminalNode *node);

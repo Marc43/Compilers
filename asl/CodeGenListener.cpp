@@ -78,25 +78,23 @@ void CodeGenListener::exitFunction(AslParser::FunctionContext *ctx) {
   subroutine & subrRef = Code.get_last_subroutine();
   instructionList code = getCodeDecor(ctx->statements());
 
+  std::string ident = ctx->ident()->ID()->getText();
+
   TypesMgr::TypeId t = getTypeDecor(ctx->ident());
 
   if (not Types.isVoidFunction(t)) {
     subrRef.add_param("_result");
   }
  
-  for (auto decl : ctx->decl()) {
-    AslParser::BasicDeclContext* basicdeclaration = dynamic_cast<AslParser::BasicDeclContext*>(decl); 
-    AslParser::ArrayDeclContext* arraydeclaration = dynamic_cast<AslParser::ArrayDeclContext*>(decl); 
+  for (auto decl : ctx->param_decl()) {
+    AslParser::BasicParamDeclContext* basicdeclaration = dynamic_cast<AslParser::BasicParamDeclContext*>(decl); 
+    AslParser::ArrayParamDeclContext* arraydeclaration = dynamic_cast<AslParser::ArrayParamDeclContext*>(decl); 
 
     if (basicdeclaration) {
-      for (auto identifier : basicdeclaration->ID()) {
-        subrRef.add_param(identifier->getText()); 
-      }
+        subrRef.add_param(basicdeclaration->ID()->getText()); 
     }
     else if (arraydeclaration) {
-      for (auto identifier : arraydeclaration->ID()) {
-        subrRef.add_param(identifier->getText()); 
-      }
+        subrRef.add_param(arraydeclaration->ID()->getText()); 
     }
  } 
 
