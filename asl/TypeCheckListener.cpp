@@ -74,8 +74,8 @@ void TypeCheckListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
- 
-  TypesMgr::TypeId functype = getTypeDecor(ctx->ident());
+
+  TypesMgr::TypeId functype = getTypeDecor(ctx); 
   //Check if it's really a function? TODO
   Symbols.setCurrentFunctionTy(functype);
 
@@ -330,7 +330,8 @@ void TypeCheckListener::enterIdent(AslParser::IdentContext *ctx) {
 
 void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
   std::string ident = ctx->ID()->getText();
-  if (Symbols.findInStack(ident) == -1) {
+  int found_stack = Symbols.findInStack(ident);
+  if (found_stack == -1) {
     Errors.undeclaredIdent(ctx->ID());
     TypesMgr::TypeId te = Types.createErrorTy();
     putTypeDecor(ctx, te);

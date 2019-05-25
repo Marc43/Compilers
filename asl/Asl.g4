@@ -38,16 +38,22 @@ program : function+ EOF
 
 // A function has a name, a list of parameters and a list of statements
 function
-        : FUNC ident LPAREN ((decl',')* decl)? RPAREN (':' type)? declarations statements ENDFUNC
+        : FUNC ID LPAREN ((param_decl',')* param_decl)? RPAREN (':' type)? declarations statements ENDFUNC
         ;
 
 declarations
         : (variable_decl)*
         ;
 
+param_decl
+        : ID ':' ARRAY LCLAU expr RCLAU OF type # arrayParamDecl
+        | ID ':' type                           # basicParamDecl
+        ;
+
 variable_decl
         : VAR decl 
         ;
+
 //LEER LOS COMENTARIOS DE AQUI PORFAVOR
 decl    : ID (','ID)* ':' ARRAY LCLAU expr RCLAU OF type   # arrayDecl
      	| ID (','ID)* ':' type                             # basicDecl //Que se permita declarar mas de una nos puede llevar a problemas en los parametros!!! TODO 

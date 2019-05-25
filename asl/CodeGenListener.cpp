@@ -68,7 +68,7 @@ void CodeGenListener::exitProgram(AslParser::ProgramContext *ctx) {
 
 void CodeGenListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
-  subroutine subr(ctx->ident()->getText());
+  subroutine subr(ctx->ID()->getText());
   Code.add_subroutine(subr);
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
@@ -78,9 +78,9 @@ void CodeGenListener::exitFunction(AslParser::FunctionContext *ctx) {
   subroutine & subrRef = Code.get_last_subroutine();
   instructionList code = getCodeDecor(ctx->statements());
 
-  std::string ident = ctx->ident()->ID()->getText();
+  std::string ident = ctx->ID()->getText();
 
-  TypesMgr::TypeId t = getTypeDecor(ctx->ident());
+  TypesMgr::TypeId t = getTypeDecor(ctx); 
 
   if (not Types.isVoidFunction(t)) {
     subrRef.add_param("_result");

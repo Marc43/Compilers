@@ -74,7 +74,7 @@ void SymbolsListener::exitProgram(AslParser::ProgramContext *ctx) {
 
 void SymbolsListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
-  std::string funcName = ctx->ident()->ID()->getText();
+  std::string funcName = ctx->ID()->getText();
   SymTable::ScopeId sc = Symbols.pushNewScope(funcName);
   putScopeDecor(ctx, sc);
 }
@@ -82,9 +82,9 @@ void SymbolsListener::enterFunction(AslParser::FunctionContext *ctx) {
 void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
   // Symbols.print();
   Symbols.popScope();
-  std::string ident = ctx->ident()->ID()->getText();
+  std::string ident = ctx->ID()->getText();
   if (Symbols.findInCurrentScope(ident)) {
-    Errors.declaredIdent(ctx->ident()->ID());
+    Errors.declaredIdent(ctx->ID());
   }
   else {
 
@@ -138,7 +138,7 @@ void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
 
     TypesMgr::TypeId tFunc = Types.createFunctionTy(lParamsTy, tRet);
 
-    putTypeDecor(ctx->ident(), tFunc);
+    putTypeDecor(ctx, tFunc);
 
     Symbols.addFunction(ident, tFunc);
   }
