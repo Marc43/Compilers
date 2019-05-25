@@ -184,6 +184,7 @@ void CodeGenListener::exitIndexArrayExpr(AslParser::IndexArrayExprContext *ctx) 
   putAddrDecor(ctx, temp);
   putOffsetDecor(ctx, offs);
   putCodeDecor(ctx, code);
+
   DEBUG_EXIT();
 }
   
@@ -381,10 +382,35 @@ void CodeGenListener::enterReadStmt(AslParser::ReadStmtContext *ctx) {
 void CodeGenListener::exitReadStmt(AslParser::ReadStmtContext *ctx) {
   instructionList  code;
   std::string     addr1 = getAddrDecor(ctx->left_expr());
-  // std::string     offs1 = getOffsetDecor(ctx->left_expr());
+  std::string     offs1 = getOffsetDecor(ctx->left_expr());
   instructionList code1 = getCodeDecor(ctx->left_expr());
-  // TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
-  code = code1 || instruction::READI(addr1);
+  TypesMgr::TypeId tid1 = getTypeDecor(ctx->left_expr());
+
+  std::string address;
+
+  if (offs1 != "") {
+    //Array access
+    address = "%"+codeCounters.newTEMP();
+  }
+  else {
+    address = addr1;
+  }
+
+  if (Types.isCharacterTy(tid1)) {
+    code = code1 || instruction::READC(address);
+  }
+  else if (Types.isFloatTy(tid1)) {
+    code = code1 || instruction::READF(address);
+  }
+  else {
+    code = code1 || instruction::READI(address);
+  }
+
+  if (offs1 != "") {
+    code = code || instruction::XLOAD(addr1, offs1, address);
+  }
+
+  putOffsetDecor(ctx, offs1);
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }
@@ -395,12 +421,12 @@ void CodeGenListener::enterWriteExpr(AslParser::WriteExprContext *ctx) {
 void CodeGenListener::exitWriteExpr(AslParser::WriteExprContext *ctx) {
   instructionList code;
   std::string     addr1 = getAddrDecor(ctx->expr());
-  // std::string     offs1 = getOffsetDecor(ctx->expr());
+  std::string     offs1 = getOffsetDecor(ctx->expr());
   instructionList code1 = getCodeDecor(ctx->expr());
   
   TypesMgr::TypeId tid1 = getTypeDecor(ctx->expr());
 
-  if (Types.isCharacterTy(tid1)) {
+  if (Types.isCharacterTy(tid1)) { //no entrara nunca por aqui
     code = code1 || instruction::WRITEC(addr1);
   }
   else if (Types.isFloatTy(tid1)) {
@@ -410,6 +436,7 @@ void CodeGenListener::exitWriteExpr(AslParser::WriteExprContext *ctx) {
     code = code1 || instruction::WRITEI(addr1);
   }
 
+  putOffsetDecor(ctx, offs1);
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }

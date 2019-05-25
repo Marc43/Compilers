@@ -560,6 +560,20 @@ void TypeCheckListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
 }
 
 
+void TypeCheckListener::enterParenthesis(AslParser::ParenthesisContext *ctx) {
+  DEBUG_ENTER();
+}
+  
+void TypeCheckListener::exitParenthesis(AslParser::ParenthesisContext *ctx) {
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr());
+
+  putTypeDecor(ctx, t1);
+  bool b = getIsLValueDecor(ctx->expr());
+  putIsLValueDecor(ctx, b);
+  DEBUG_EXIT();
+}
+
+
 // void TypeCheckListener::enterEveryRule(antlr4::ParserRuleContext *ctx) {
 //   DEBUG_ENTER();
 // }
