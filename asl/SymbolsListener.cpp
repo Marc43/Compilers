@@ -177,12 +177,12 @@ void SymbolsListener::enterArrayDecl(AslParser::ArrayDeclContext *ctx) {
 
 void SymbolsListener::exitArrayDecl(AslParser::ArrayDeclContext *ctx) {
 
-  for (auto sdechoque : ctx->ID()) {
+  for (auto sdechoque : ctx->ident()) {
 		  
-		 std::string ident = sdechoque->getText();
+		 std::string ident = sdechoque->ID()->getText();
 
 		  if (Symbols.findInCurrentScope(ident)) {
-			Errors.declaredIdent(sdechoque);
+			Errors.declaredIdent(sdechoque->ID());
 		  }
 		  else {
 			  int array_size = std::stoi(ctx->expr()->getText()); 
