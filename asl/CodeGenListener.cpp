@@ -178,10 +178,17 @@ void CodeGenListener::exitIndexArrayExpr(AslParser::IndexArrayExprContext *ctx) 
   instructionList code = getCodeDecor(ctx->array_access());
 
   std::string temp1 = "%"+codeCounters.newTEMP();
-  std::string temp2 = "%"+codeCounters.newTEMP();
-  code = code || instruction::LOAD(temp1, addr) || instruction::LOADX(temp2, temp1, offs);
 
-  putAddrDecor(ctx, temp2);
+  if (Symbols.isParameterClass(addr)) {
+    std::string temp2 = "%"+codeCounters.newTEMP();
+    code = code || instruction::LOAD(temp1, addr) || instruction::LOADX(temp2, temp1, offs);
+    putAddrDecor(ctx, temp2);
+  } 
+  else {
+    code = code || instruction::LOADX(temp1, addr, offs);
+    putAddrDecor(ctx, temp1);
+  }
+
   putOffsetDecor(ctx, offs);
   putCodeDecor(ctx, code);
 
@@ -239,13 +246,17 @@ void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
 
   if (offs1 != "") { //Is an array access!
     std::string temp1 = "%"+codeCounters.newTEMP();
-    
-    code = code1 || code2 || instruction::LOAD(temp1, addr1) || instruction::XLOAD(temp1, offs1, addr2);
+    	  
+    if (Symbols.isParameterClass(addr1)) {
+      code = code1 || code2 || instruction::LOAD(temp1, addr1) || instruction::XLOAD(temp1, offs1, addr2);
+    } 
+    else {
+      code = code1 || code2 || instruction::XLOAD(addr1, offs1, addr2);
+    }
   }
   else {
     code = code1 || code2 || instruction::LOAD(addr1, addr2);
   }
-
 
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
