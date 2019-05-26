@@ -152,6 +152,9 @@ public:
   void enterFunctionAsExpr(AslParser::FunctionAsExprContext *ctx);
   void exitFunctionAsExpr(AslParser::FunctionAsExprContext *ctx);
 
+  void enterParenthesis(AslParser::ParenthesisContext *ctx);
+  void exitParenthesis(AslParser::ParenthesisContext *ctx);
+
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);
   // void visitTerminal(antlr4::tree::TerminalNode *node);

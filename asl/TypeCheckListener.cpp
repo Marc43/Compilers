@@ -40,7 +40,7 @@
 #include <string>
 
 // uncomment the following line to enable debugging messages with DEBUG*
-#define DEBUG_BUILD
+//#define DEBUG_BUILD
 #include "../common/debug.h"
 
 // using namespace std;
@@ -74,8 +74,8 @@ void TypeCheckListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
   SymTable::ScopeId sc = getScopeDecor(ctx);
   Symbols.pushThisScope(sc);
- 
-  TypesMgr::TypeId functype = getTypeDecor(ctx->ident());
+
+  TypesMgr::TypeId functype = getTypeDecor(ctx); 
   //Check if it's really a function? TODO
   Symbols.setCurrentFunctionTy(functype);
 
@@ -263,7 +263,7 @@ void TypeCheckListener::exitProcCall(AslParser::ProcCallContext *ctx) {
         TypesMgr::TypeId declared_param_type = Types.getParameterType(t1, i);
 
         if ((not Types.isErrorTy(called_param_type)) and (not Types.isErrorTy(declared_param_type)) and
-             (not Types.copyableTypes(called_param_type, declared_param_type))) {
+             (not Types.copyableTypes(declared_param_type, called_param_type))) {
             Errors.incompatibleParameter(param, i+1, ctx->ident());
         }         
         i++;
@@ -330,7 +330,8 @@ void TypeCheckListener::enterIdent(AslParser::IdentContext *ctx) {
 
 void TypeCheckListener::exitIdent(AslParser::IdentContext *ctx) {
   std::string ident = ctx->ID()->getText();
-  if (Symbols.findInStack(ident) == -1) {
+  int found_stack = Symbols.findInStack(ident);
+  if (found_stack == -1) {
     Errors.undeclaredIdent(ctx->ID());
     TypesMgr::TypeId te = Types.createErrorTy();
     putTypeDecor(ctx, te);
@@ -354,6 +355,7 @@ void TypeCheckListener::enterLeft_expr(AslParser::Left_exprContext *ctx) {
 }
 
 void TypeCheckListener::exitLeft_expr(AslParser::Left_exprContext *ctx) {
+  //TODO FALTA subir las cosas
   DEBUG_EXIT();
 }
 
@@ -372,7 +374,7 @@ void TypeCheckListener::exitUnary(AslParser::UnaryContext *ctx) {
         if ((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) {
             Errors.incompatibleOperator(ctx->op);
         }
-        t = Types.createIntegerTy(); //TODO que hay con los floats? me da mala espina!
+        t = t1;
         putTypeDecor(ctx, t);
     }
     else {
@@ -433,12 +435,29 @@ void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
   TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
 
-  if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
-      ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2)))) { 
-    Errors.incompatibleOperator(ctx->op);
-  } //TODO que hay de los floats?...
+  std::string op = ctx->op->getText();
+  if (op == "%") {
+	  if (((not Types.isErrorTy(t1)) and (not Types.isIntegerTy(t1))) or
+	     ((not Types.isErrorTy(t2)) and (not Types.isIntegerTy(t2)))) {
+		  Errors.incompatibleOperator(ctx->op);
+	  }
+  }
+  else {
+      if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
+	     ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2)))) { 
+		   Errors.incompatibleOperator(ctx->op);
+	   } 
+  }
 
-  TypesMgr::TypeId t = Types.createIntegerTy();
+  TypesMgr::TypeId t;
+  if (((not Types.isErrorTy(t1)) and (not Types.isErrorTy(t2)) 
+		and (Types.isFloatTy(t1) or Types.isFloatTy(t2)))) {
+    t = Types.createFloatTy();
+  }
+  else {
+    t = Types.createIntegerTy();
+  }
+
   putTypeDecor(ctx, t);
   putIsLValueDecor(ctx, false);
 
@@ -467,6 +486,7 @@ void TypeCheckListener::exitBoolean(AslParser::BooleanContext *ctx) {
 void TypeCheckListener::enterRelational(AslParser::RelationalContext *ctx) {
   DEBUG_ENTER();
 }
+
 void TypeCheckListener::exitRelational(AslParser::RelationalContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
   TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
@@ -536,6 +556,20 @@ void TypeCheckListener::exitExprIdent(AslParser::ExprIdentContext *ctx) {
   bool b = getIsLValueDecor(ctx->ident());
   putIsLValueDecor(ctx, b);
 
+  DEBUG_EXIT();
+}
+
+
+void TypeCheckListener::enterParenthesis(AslParser::ParenthesisContext *ctx) {
+  DEBUG_ENTER();
+}
+  
+void TypeCheckListener::exitParenthesis(AslParser::ParenthesisContext *ctx) {
+  TypesMgr::TypeId t1 = getTypeDecor(ctx->expr());
+
+  putTypeDecor(ctx, t1);
+  bool b = getIsLValueDecor(ctx->expr());
+  putIsLValueDecor(ctx, b);
   DEBUG_EXIT();
 }
 

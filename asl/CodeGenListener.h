@@ -132,6 +132,42 @@ public:
 
   void enterFuncStmt(AslParser::FuncStmtContext *ctx);
   void exitFuncStmt(AslParser::FuncStmtContext *ctx);
+  
+  void enterParenthesis(AslParser::ParenthesisContext *ctx);
+  void exitParenthesis(AslParser::ParenthesisContext *ctx);
+  
+  void enterBoolean(AslParser::BooleanContext *ctx);
+  void exitBoolean(AslParser::BooleanContext *ctx);
+
+  void enterUnary(AslParser::UnaryContext *ctx);
+  void exitUnary(AslParser::UnaryContext *ctx);
+
+  void enterFloatvalue(AslParser::FloatvalueContext *ctx);
+  void exitFloatvalue(AslParser::FloatvalueContext *ctx);
+  
+  void enterBooleanvalue(AslParser::BooleanvalueContext *ctx);
+  void exitBooleanvalue(AslParser::BooleanvalueContext *ctx);
+
+  void enterWhileStmt(AslParser::WhileStmtContext *ctx);
+  void exitWhileStmt(AslParser::WhileStmtContext *ctx);
+
+  void enterReturnStmt(AslParser::ReturnStmtContext *ctx);
+  void exitReturnStmt(AslParser::ReturnStmtContext *ctx);
+
+  void enterFunctionAsExpr(AslParser::FunctionAsExprContext *ctx);
+  void exitFunctionAsExpr(AslParser::FunctionAsExprContext *ctx);
+  
+  void enterIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx);
+  void exitIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx);
+
+  void enterIndexArrayExpr(AslParser::IndexArrayExprContext *ctx);
+  void exitIndexArrayExpr(AslParser::IndexArrayExprContext *ctx);
+  
+  void enterArray_access(AslParser::Array_accessContext *ctx);
+  void exitArray_access(AslParser::Array_accessContext *ctx);
+
+  void enterChar(AslParser::CharContext *ctx); 
+  void exitChar(AslParser::CharContext *ctx); 
 
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);

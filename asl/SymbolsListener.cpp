@@ -74,17 +74,17 @@ void SymbolsListener::exitProgram(AslParser::ProgramContext *ctx) {
 
 void SymbolsListener::enterFunction(AslParser::FunctionContext *ctx) {
   DEBUG_ENTER();
-  std::string funcName = ctx->ident()->ID()->getText();
+  std::string funcName = ctx->ID()->getText();
   SymTable::ScopeId sc = Symbols.pushNewScope(funcName);
   putScopeDecor(ctx, sc);
 }
 
 void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
-  Symbols.popScope();
   // Symbols.print();
-  std::string ident = ctx->ident()->ID()->getText();
+  Symbols.popScope();
+  std::string ident = ctx->ID()->getText();
   if (Symbols.findInCurrentScope(ident)) {
-    Errors.declaredIdent(ctx->ident()->ID());
+    Errors.declaredIdent(ctx->ID());
   }
   else {
 
@@ -93,23 +93,21 @@ void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
 
     std::vector<TypesMgr::TypeId> lParamsTy;
 
-    for (auto declaration : ctx->decl()) {
-        AslParser::BasicDeclContext* basicdeclaration = dynamic_cast<AslParser::BasicDeclContext*>(declaration);
-        AslParser::ArrayDeclContext* arraydeclaration = dynamic_cast<AslParser::ArrayDeclContext*>(declaration);
+    for (auto declaration : ctx->param_decl()) {
+        AslParser::BasicParamDeclContext* basicdeclaration = dynamic_cast<AslParser::BasicParamDeclContext*>(declaration);
+        AslParser::ArrayParamDeclContext* arraydeclaration = dynamic_cast<AslParser::ArrayParamDeclContext*>(declaration);
         //Me parece muy peligroso lo que pueda pasar aqui!!!
 
-        std::string ident;
         TypesMgr::TypeId t;
 
         if (basicdeclaration) {
-            t = getTypeDecor(basicdeclaration->type());
+            t     = getTypeDecor(basicdeclaration->type());
         }
         else if (arraydeclaration) {
           int array_size = std::stoi(arraydeclaration->expr()->getText());
 
           TypesMgr::TypeId aux = getTypeDecor(arraydeclaration->type());
           t = Types.createArrayTy(array_size, aux);
-
         }
         else {
             std::cout << "Error, no se ha podido castear a BasicDecl ni a ArrayDecl! SymbolsListener::exitFunction" << std::endl;
@@ -140,7 +138,7 @@ void SymbolsListener::exitFunction(AslParser::FunctionContext *ctx) {
 
     TypesMgr::TypeId tFunc = Types.createFunctionTy(lParamsTy, tRet);
 
-    putTypeDecor(ctx->ident(), tFunc);
+    putTypeDecor(ctx, tFunc);
 
     Symbols.addFunction(ident, tFunc);
   }
@@ -178,35 +176,94 @@ void SymbolsListener::enterArrayDecl(AslParser::ArrayDeclContext *ctx) {
 }
 
 void SymbolsListener::exitArrayDecl(AslParser::ArrayDeclContext *ctx) {
-  std::string ident = ctx->ID()->getText();
 
-  if (Symbols.findInCurrentScope(ident)) {
-    Errors.declaredIdent(ctx->ID());
+  for (auto sdechoque : ctx->ident()) {
+		  
+		 std::string ident = sdechoque->ID()->getText();
+
+		  if (Symbols.findInCurrentScope(ident)) {
+			Errors.declaredIdent(sdechoque->ID());
+		  }
+		  else {
+			  int array_size = std::stoi(ctx->expr()->getText()); 
+			  //TODO error management¿ No habría que calcular lo que fuera? Quiza la expr no se ha resulto hasta aqui..
+
+			  TypesMgr::TypeId t;
+			  if (ctx->type()->INT()) {
+				  t = Types.createIntegerTy();
+			  }
+			  else if (ctx->type()->FLOAT()) {
+				  t = Types.createFloatTy();  
+			  } 
+			  else if (ctx->type()->BOOL()) {
+				  t = Types.createBooleanTy();
+			  }
+			  else if (ctx->type()->CHAR()) {
+				  t = Types.createCharacterTy();
+			  }
+			  TypesMgr::TypeId array_type = Types.createArrayTy(array_size, t); 
+			  //putTypeDecor(ctx, array_type);
+			  Symbols.addLocalVar(ident, array_type);
+		  } 
+
   }
-  else {
-      int array_size = std::stoi(ctx->expr()->getText()); 
-      //TODO error management¿ No habría que calcular lo que fuera? Quiza la expr no se ha resulto hasta aqui..
 
-      TypesMgr::TypeId t;
-      if (ctx->type()->INT()) {
-          t = Types.createIntegerTy();
-      }
-      else if (ctx->type()->FLOAT()) {
-          t = Types.createFloatTy();  
-      } 
-      else if (ctx->type()->BOOL()) {
-          t = Types.createBooleanTy();
-      }
-      else if (ctx->type()->CHAR()) {
-          t = Types.createCharacterTy();
-      }
-      TypesMgr::TypeId array_type = Types.createArrayTy(array_size, t); 
-      //putTypeDecor(ctx, array_type);
-      Symbols.addLocalVar(ident, array_type);
-  } 
 
   DEBUG_EXIT();
   
+}
+  
+void SymbolsListener::enterArrayParamDecl(AslParser::ArrayParamDeclContext *ctx) {
+  DEBUG_ENTER();
+}
+
+void SymbolsListener::exitArrayParamDecl(AslParser::ArrayParamDeclContext *ctx) {
+
+		 std::string ident = ctx->ID()->getText();
+
+		  if (Symbols.findInCurrentScope(ident)) {
+			Errors.declaredIdent(ctx->ID());
+		  }
+		  else {
+			  int array_size = std::stoi(ctx->expr()->getText()); 
+			  //TODO error management¿ No habría que calcular lo que fuera? Quiza la expr no se ha resulto hasta aqui..
+
+			  TypesMgr::TypeId t;
+			  if (ctx->type()->INT()) {
+				  t = Types.createIntegerTy();
+			  }
+			  else if (ctx->type()->FLOAT()) {
+				  t = Types.createFloatTy();  
+			  } 
+			  else if (ctx->type()->BOOL()) {
+				  t = Types.createBooleanTy();
+			  }
+			  else if (ctx->type()->CHAR()) {
+				  t = Types.createCharacterTy();
+			  }
+			  TypesMgr::TypeId array_type = Types.createArrayTy(array_size, t); 
+			  //putTypeDecor(ctx, array_type);
+			  Symbols.addParameter(ident, array_type);
+		  } 
+
+  DEBUG_EXIT(); 
+}
+  
+void SymbolsListener::enterBasicParamDecl(AslParser::BasicParamDeclContext *ctx) {
+  DEBUG_ENTER();
+}
+
+void SymbolsListener::exitBasicParamDecl(AslParser::BasicParamDeclContext *ctx) {
+        std::string ident = ctx->ID()->getText();
+        if (Symbols.findInCurrentScope(ident)) {
+            Errors.declaredIdent(ctx->ID());
+        }
+        else {
+            TypesMgr::TypeId t1 = getTypeDecor(ctx->type());
+            Symbols.addParameter(ident, t1);
+        }
+        DEBUG_EXIT();
+
 }
 
 void SymbolsListener::enterType(AslParser::TypeContext *ctx) {

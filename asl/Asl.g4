@@ -38,19 +38,24 @@ program : function+ EOF
 
 // A function has a name, a list of parameters and a list of statements
 function
-        : FUNC ident LPAREN ((decl',')* decl)? RPAREN (':' type)? declarations statements ENDFUNC
+        : FUNC ID LPAREN ((param_decl',')* param_decl)? RPAREN (':' type)? declarations statements ENDFUNC
         ;
 
 declarations
         : (variable_decl)*
         ;
 
+param_decl
+        : ID ':' ARRAY LCLAU expr RCLAU OF type # arrayParamDecl
+        | ID ':' type                           # basicParamDecl
+        ;
+
 variable_decl
         : VAR decl 
         ;
-//LEER LOS COMENTARIOS DE AQUI PORFAVOR
-decl    : ID (','ID)* ':' type                    # basicDecl //Que se permita declarar mas de una nos puede llevar a problemas en los parametros!!! TODO 
-        | ID ':' ARRAY LCLAU expr RCLAU OF type   # arrayDecl
+
+decl    : ident (','ident)* ':' ARRAY LCLAU expr RCLAU OF type      # arrayDecl
+     	| ID (','ID)* ':' type                                      # basicDecl 
         ;
 
 //Tipos básicos
@@ -71,9 +76,9 @@ functioncall
 // The different types of instructions
 statement
           // Assignment
-        : left_expr ASSIGN expr ';'           # assignStmt
+        : left_expr ASSIGN expr ';'                             # assignStmt
           // if-then-else statement (else is optional)
-        | IF expr THEN statements ENDIF       # ifStmt
+        | IF expr THEN statements (ELSE statements)? ENDIF      # ifStmt
 
         | WHILE expr DO statements ENDWHILE   # whileStmt
           // Read a variable
@@ -178,7 +183,7 @@ FLOATVAL  : ('0'..'9')+('.'('0'..'9')+)? ;
 
 // Strings (in quotes) with escape sequences
 STRING    : '"' ( ESC_SEQ | ~('\\'|'"') )* '"' ;
-CHARS     : '\''.?'\'';
+CHARS     : '\''( . | '\\n' )?'\'';
 // No influyen en la gramática, son solo para simplificar...
 fragment
 ESC_SEQ   : '\\' ('b'|'t'|'n'|'f'|'r'|'"'|'\''|'\\') ;
