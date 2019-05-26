@@ -255,7 +255,42 @@ void CodeGenListener::exitAssignStmt(AslParser::AssignStmtContext *ctx) {
     }
   }
   else {
-    code = code1 || code2 || instruction::LOAD(addr1, addr2);
+    if (Types.isArrayTy(tid1) and Types.isArrayTy(tid2)) {
+    	//We shall copy the values of addr2 into addr1.
+	//Supposing that the sizes are equal!
+	
+ 	instructionList copy;	
+	int array_size = Types.getArraySize(tid1);
+	
+    	std::string temp1 = "%"+codeCounters.newTEMP();
+    	std::string temp2 = "%"+codeCounters.newTEMP();
+
+	//Take into account that you can be using parameters here, so 
+	//probably you will have to use a temporal in between to use
+	//the base address of the array.
+	std::string aux1 = addr1;
+	std::string aux2 = addr2;
+
+	if (Symbols.isParameterClass(addr1)) {
+	  aux1 = "%"+codeCounters.newTEMP();
+	  copy = instruction::LOAD(aux1, addr1);
+	}  
+
+	if (Symbols.isParameterClass(addr2)) {
+	  aux2 = "%"+codeCounters.newTEMP();
+	  copy = instruction::LOAD(aux2, addr2);
+	}  
+
+	for (int i = 0; i < array_size; ++i) {
+	  copy = copy || instruction::ILOAD(temp1, std::to_string(i)) 	||
+ 			 instruction::LOADX(temp2, aux2, temp1) 	|| 
+			 instruction::XLOAD(aux1, temp1, temp2);
+	}
+	code = code1 || code2 || copy;
+    }
+    else {
+      code = code1 || code2 || instruction::LOAD(addr1, addr2);
+    }
   }
 
   putCodeDecor(ctx, code);
@@ -436,6 +471,24 @@ void CodeGenListener::exitReadStmt(AslParser::ReadStmtContext *ctx) {
   DEBUG_EXIT();
 }
 
+void CodeGenListener::enterChar(AslParser::CharContext *ctx) {
+  DEBUG_ENTER();
+}
+
+void CodeGenListener::exitChar(AslParser::CharContext *ctx) {
+  instructionList code;
+  std::string s = ctx->CHARS()->getText();
+  std::string temp = "%"+codeCounters.newTEMP();
+  
+  code = instruction::CHLOAD(temp, s.substr(1, s.size()-2)); 
+ 
+  putAddrDecor(ctx, temp);	  
+  putOffsetDecor(ctx, "");
+  putCodeDecor(ctx, code);
+
+  DEBUG_EXIT();	
+}
+
 void CodeGenListener::enterWriteExpr(AslParser::WriteExprContext *ctx) {
   DEBUG_ENTER();
 }
@@ -447,7 +500,7 @@ void CodeGenListener::exitWriteExpr(AslParser::WriteExprContext *ctx) {
   
   TypesMgr::TypeId tid1 = getTypeDecor(ctx->expr());
 
-  if (Types.isCharacterTy(tid1)) { //no entrara nunca por aqui
+  if (Types.isCharacterTy(tid1)) { 
     code = code1 || instruction::WRITEC(addr1);
   }
   else if (Types.isFloatTy(tid1)) {
@@ -497,6 +550,7 @@ void CodeGenListener::exitWriteString(AslParser::WriteStringContext *ctx) {
       }
     }
   }
+
   putCodeDecor(ctx, code);
   DEBUG_EXIT();
 }

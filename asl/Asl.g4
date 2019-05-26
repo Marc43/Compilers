@@ -183,7 +183,7 @@ FLOATVAL  : ('0'..'9')+('.'('0'..'9')+)? ;
 
 // Strings (in quotes) with escape sequences
 STRING    : '"' ( ESC_SEQ | ~('\\'|'"') )* '"' ;
-CHARS     : '\''.?'\'';
+CHARS     : '\''( . | '\\n' )?'\'';
 // No influyen en la gramática, son solo para simplificar...
 fragment
 ESC_SEQ   : '\\' ('b'|'t'|'n'|'f'|'r'|'"'|'\''|'\\') ;

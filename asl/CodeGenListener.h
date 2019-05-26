@@ -166,6 +166,9 @@ public:
   void enterArray_access(AslParser::Array_accessContext *ctx);
   void exitArray_access(AslParser::Array_accessContext *ctx);
 
+  void enterChar(AslParser::CharContext *ctx); 
+  void exitChar(AslParser::CharContext *ctx); 
+
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);
   // void visitTerminal(antlr4::tree::TerminalNode *node);
