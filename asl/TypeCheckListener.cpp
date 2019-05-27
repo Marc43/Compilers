@@ -435,6 +435,8 @@ void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
   TypesMgr::TypeId t1 = getTypeDecor(ctx->expr(0));
   TypesMgr::TypeId t2 = getTypeDecor(ctx->expr(1));
 
+  bool vectorial_operation = false;
+
   std::string op = ctx->op->getText();
   if (op == "%") {
 	  if (((not Types.isErrorTy(t1)) and (not Types.isIntegerTy(t1))) or
@@ -443,16 +445,42 @@ void TypeCheckListener::exitArithmetic(AslParser::ArithmeticContext *ctx) {
 	  }
   }
   else {
-      if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
-	     ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2)))) { 
-		   Errors.incompatibleOperator(ctx->op);
-	   } 
+      if ((not Types.isErrorTy(t1)) and (not Types.isErrorTy(t2)) and
+            (Types.isArrayTy(t1) and Types.isArrayTy(t2))) {
+            TypesMgr::TypeId arrt1 = Types.getArrayElemType(t1);
+            TypesMgr::TypeId arrt2 = Types.getArrayElemType(t2);
+       
+            vectorial_operation = true;
+            if (((not Types.isErrorTy(arrt1)) and (not Types.isNumericTy(arrt1))) or
+                (((not Types.isErrorTy(arrt2)) and (not Types.isNumericTy(arrt2))  or 
+                 (not Types.equalTypes(arrt1, arrt2))))) { 
+                  Errors.incompatibleOperator(ctx->op);
+                  vectorial_operation = false;
+            } 
+            else {
+                if ((not Types.copyableTypes(t1, t2))) {
+                    Errors.incompatibleOperator(ctx->op);
+                    vectorial_operation = false;
+                } 
+            }
+      }
+      else {
+
+          if (((not Types.isErrorTy(t1)) and (not Types.isNumericTy(t1))) or
+              ((not Types.isErrorTy(t2)) and (not Types.isNumericTy(t2)))) { 
+              Errors.incompatibleOperator(ctx->op);
+          } 
+      }
   }
 
   TypesMgr::TypeId t;
   if (((not Types.isErrorTy(t1)) and (not Types.isErrorTy(t2)) 
 		and (Types.isFloatTy(t1) or Types.isFloatTy(t2)))) {
     t = Types.createFloatTy();
+  }
+  else if (vectorial_operation){
+    //They are vectors of the same type
+    t = Types.getArrayElemType(t1);
   }
   else {
     t = Types.createIntegerTy();
