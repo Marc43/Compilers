@@ -70,6 +70,10 @@ public:
 			    TypeId                      returnType);
   TypeId createArrayTy     (unsigned int                size,
 		            TypeId                      elemType);
+  // Constructor for PAIR type ========================================
+  TypeId createPairTy      (TypeId                      firstType,
+		            TypeId                      secondType);
+  // ==================================================================
 
   // Accessors to work with primitive and error types
   bool isErrorTy            (TypeId tid) const;
@@ -96,6 +100,11 @@ public:
   unsigned int getArraySize     (TypeId tid) const;
   TypeId       getArrayElemType (TypeId tid) const;
 
+  // Accessors to work with PAIR types ================================
+  bool   isPairTy          (TypeId tid) const;
+  TypeId getFirstPairType  (TypeId tid) const;
+  TypeId getSecondPairType (TypeId tid) const;
+  // ==================================================================
   // Methods to check different compatibilities of types
   //   - structurally equal?
   bool equalTypes      (TypeId tid1, TypeId tid2)     const;
@@ -139,6 +148,9 @@ private:
     // Compound data types:
     FunctionKind       ,     // function types
     ArrayKind          ,     // array types
+    // Kind for PAIR types: ===========================================
+    PairKind           ,     // PAIR types
+    // ================================================================
   };
 
   // Static attributes:
@@ -172,6 +184,10 @@ private:
 	  TypeId                      returnType);
     Type (unsigned int                arraySize,
 	  TypeId                      arrayElemType);
+    // Constructor for PAIR type ======================================
+    Type (TypeId                      firstType,
+	  TypeId                      secondType);
+    // ================================================================
 
     // Destructor
     ~Type () = default;
@@ -203,6 +219,11 @@ private:
     unsigned int getArraySize     () const;
     TypeId       getArrayElemType () const;
 
+    // Accessors to work with PAIR types ==============================
+    bool   isPairTy          () const;
+    TypeId getFirstPairType  () const;
+    TypeId getSecondPairType () const;
+    // ================================================================
   private:
 
     // Atributes:
@@ -214,6 +235,10 @@ private:
     //   - to represent the type of an array:
     unsigned int arraySize;
     TypeId arrayElemTy;
+    //   - to represent the type of a PAIR: ===========================
+    TypeId firstPairTy;
+    TypeId secondPairTy;
+    // ================================================================
 
   };  // class Type
 

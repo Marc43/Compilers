@@ -1,0 +1,4 @@
+Line 7:17 error: Operator '!=' with incompatible types.
+Line 11:16 error: Assignment with incompatible types.
+Line 14:28 error: Operator '+' with incompatible types.
+Line 14:17 error: Assignment with incompatible types.

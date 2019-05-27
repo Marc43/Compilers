@@ -100,18 +100,16 @@ public:
   // Accessor to get the TypeId of a symbol. If not found return type 'error'
   TypesMgr::TypeId getType (const std::string & ident) const;
 
-  // Accessor/Mutator to the type (TypeId) of the current function
-  TypesMgr::TypeId getCurrentFunctionTy ()                      const;
-  void             setCurrentFunctionTy (TypesMgr::TypeId type);
-
-  // Check the existence of the "main" function
-  bool noMainProperlyDeclared() const;
-
   // Print the symbols of a scope on the standard output
   //   - the symbols of the current scope (top of the stack)
   void printCurrentScope () const;
   //   - the symbols of the whole stack
   void print             () const;
+
+  // Returns the type (TypeId) of the function whose scope is
+  // on top of the stack
+  TypesMgr::TypeId getCurrentFunctionTy () const;
+  bool noMainProperlyDeclared() const;
 
 
 private:
@@ -122,8 +120,6 @@ private:
   TypesMgr               & Types;
   std::vector<ScopeInfo>   ScopesVec;
   std::vector<ScopeId>     ScopeIdsStack;
-  // Current function type, established by TypeCheckListener
-  TypesMgr::TypeId         currFunctionType;
 
   //////////////////////////////////////////////////////////////////
   // Class ScopeInfo: is declared inside SymTable and is private,
