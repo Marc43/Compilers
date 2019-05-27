@@ -43,7 +43,6 @@ void SemErrors::print() {
 }
 
 bool SemErrors::less(const ErrorInfo & e1, const ErrorInfo & e2) {
-  if (e1.getLine() == e2.getLine()) return e1.getColumnInLine() < e2.getColumnInLine();
   return e1.getLine() < e2.getLine();
 }
 
@@ -125,8 +124,8 @@ void SemErrors::referenceableParameter(antlr4::ParserRuleContext *pCtx,
   ErrorList.push_back(error);
 }
 
-void SemErrors::incompatibleReturn(antlr4::tree::TerminalNode *node) {
-  ErrorInfo error(node->getSymbol()->getLine(), node->getSymbol()->getCharPositionInLine(), "Return with incompatible type.");
+void SemErrors::incompatibleReturn(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Return with incompatible type.");
   ErrorList.push_back(error);
 }
 
@@ -145,6 +144,12 @@ void SemErrors::noMainProperlyDeclared(antlr4::ParserRuleContext *ctx) {
   ErrorList.push_back(error);
 }
 
+// Semantic error for PAIR types ======================================
+void SemErrors::nonPairInPairAccess(antlr4::ParserRuleContext *ctx) {
+  ErrorInfo error(ctx->getStart()->getLine(), ctx->getStart()->getCharPositionInLine(), "Pair access to a non pair operand.");
+  ErrorList.push_back(error);
+}
+// ====================================================================
 SemErrors::ErrorInfo::ErrorInfo(std::size_t line, std::size_t coln, std::string message)
   : line{line}, coln{coln}, message{message} {
 }
@@ -155,8 +160,4 @@ void SemErrors::ErrorInfo::print() const {
 
 std::size_t SemErrors::ErrorInfo::getLine() const {
   return line;
-}
-
-std::size_t SemErrors::ErrorInfo::getColumnInLine() const {
-  return coln;
 }

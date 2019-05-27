@@ -1,0 +1,4 @@
+dotprod int funcio = 305
+dotprod float funcio = 240.54
+dotprod int local = 305
+dotprod float local = 240.54

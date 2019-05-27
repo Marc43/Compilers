@@ -97,6 +97,15 @@ TypesMgr::TypeId TypesMgr::createArrayTy(unsigned int size,
   return TypesVec.size()-1;
 }
 
+// Method to create a new PAIR type and return its TypeId =============
+TypesMgr::TypeId TypesMgr::createPairTy(TypeId firstType,
+				        TypeId secondType) {
+  TypesVec.push_back(Type{firstType, secondType});
+  return TypesVec.size()-1;
+}
+// ====================================================================
+
+
 // ----------------------------------------------------------------------
 // accessors for working with primitive types
 
@@ -198,6 +207,27 @@ TypesMgr::TypeId TypesMgr::getArrayElemType(TypeId tid) const {
 }
 
 // ----------------------------------------------------------------------
+// accessors for working with PAIR types ============================
+bool TypesMgr::isPairTy(TypeId tid) const {
+  const Type & t = TypesVec.at(tid);
+  return t.isPairTy();
+}
+
+TypesMgr::TypeId TypesMgr::getFirstPairType(TypeId tid) const {
+  const Type & t = TypesVec.at(tid);
+  assert(t.isPairTy());
+  return t.getFirstPairType();
+}
+
+TypesMgr::TypeId TypesMgr::getSecondPairType(TypeId tid) const {
+  const Type & t = TypesVec.at(tid);
+  assert(t.isPairTy());
+  return t.getSecondPairType();
+}
+// ==================================================================
+
+
+// ----------------------------------------------------------------------
 // methods for checking different compatibilities of Types
 
 bool TypesMgr::equalTypes(TypeId tid1, TypeId tid2) const {
@@ -232,6 +262,18 @@ bool TypesMgr::equalTypes(TypeId tid1, TypeId tid2) const {
     TypeId tid2_aux = t2.getArrayElemType();
     return equalTypes(tid1_aux, tid2_aux);
   }
+  // Equality of PAIR types =========================================
+  if (t1.isPairTy()) {  // or: if (t2.isPairTy()) {
+    TypeId tid1_aux = t1.getFirstPairType();
+    TypeId tid2_aux = t2.getFirstPairType();
+    if (equalTypes(tid1_aux, tid2_aux)) {
+      tid1_aux = t1.getSecondPairType();
+      tid2_aux = t2.getSecondPairType();
+      return equalTypes(tid1_aux, tid2_aux);
+    }
+    return false;
+  }  
+  // ================================================================
   return false;
 }
 
@@ -267,6 +309,14 @@ std::size_t TypesMgr::getSizeOfType (TypeId tid) const {
     TypeId tElem = tArr.getArrayElemType();
     return nElems * getSizeOfType(tElem);
   }
+  // Size of a PAIR type: ===========================================
+  if (isPairTy(tid)) {
+    const Type & tPair = TypesVec.at(tid);
+    TypeId tFirst  = tPair.getFirstPairType();
+    TypeId tSecond = tPair.getFirstPairType();
+    return getSizeOfType(tFirst) + getSizeOfType(tSecond);
+  }
+  // ================================================================
   return 0;
 }
 
@@ -307,6 +357,14 @@ std::string TypesMgr::to_string(TypeId tid) const {
     s = s + to_string(tid1) +">";
     return s;
   }
+  // PAIR type as string: ===========================================
+  else if (t.isPairTy()) {
+    TypeId tFirst = t.getFirstPairType();
+    TypeId tSecond = t.getSecondPairType();
+    std::string s = "pair<" + to_string(tFirst) + "," + to_string(tSecond) + ">";
+    return s;
+  }
+  // ================================================================
   else {
     return "none";
   }
@@ -339,6 +397,13 @@ TypesMgr::Type::Type(unsigned int arraySize, TypeId arrayElemType) :
   arraySize{arraySize},
   arrayElemTy{arrayElemType} {
   }
+
+// Constructor for PAIR types: ======================================
+TypesMgr::Type::Type(TypeId firstType, TypeId secondType) :
+  ID{TypesMgr::TypeKind::PairKind},
+  firstPairTy{firstType},
+  secondPairTy{secondType} { }
+// ==================================================================
 
 // ----------------------------------------------------------------------
 // accesor to get the kind
@@ -433,3 +498,18 @@ unsigned int TypesMgr::Type::getArraySize() const {
 TypesMgr::TypeId TypesMgr::Type::getArrayElemType() const {
   return arrayElemTy;
 }
+
+// ----------------------------------------------------------------------
+// accessors for working with PAIR types ==============================
+bool TypesMgr::Type::isPairTy() const {
+  return ID == TypeKind::PairKind;
+}
+
+TypesMgr::TypeId TypesMgr::Type::getFirstPairType() const {
+  return firstPairTy;
+}
+
+TypesMgr::TypeId TypesMgr::Type::getSecondPairType() const {
+  return secondPairTy;
+}
+// ====================================================================

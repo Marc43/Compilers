@@ -2,7 +2,7 @@
 //
 //    SemErrors - Semantic errors for the Asl programming language
 //
-//    Copyright (C) 2019  Universitat Politecnica de Catalunya
+//    Copyright (C) 2018  Universitat Politecnica de Catalunya
 //
 //    This library is free software; you can redistribute it and/or
 //    modify it under the terms of the GNU General Public License
@@ -39,11 +39,11 @@
 ////////////////////////////////////////////////////////////////
 // Class SemErrors: this class contains methods that emit
 // semantic error messages with their localization.
-// It is used by the semantic visitors:
-//   - SymbolsVisitor
-//   - TypeCheckVisitor
+// It is used by the semantic listeners:
+//   - SymbolsListener
+//   - TypeCheckListener
 // Semantic errors emitted are kept in a vector and when the
-// typecheck finishes they will be printed (sorted by line/column number)
+// typecheck finishes they will be printed (sorted by line number)
 
 class SemErrors {
 
@@ -96,8 +96,9 @@ public:
   void referenceableParameter       (antlr4::ParserRuleContext *pCtx,
 				     unsigned int n,
 				     antlr4::ParserRuleContext *cCtx);
-  //   node is the terminal node correspondig to the token RETURN
-  void incompatibleReturn           (antlr4::tree::TerminalNode *node);
+  //   ctx is the node of the expression when it exists,
+  //   otherwise ctx is the node of the return instruction
+  void incompatibleReturn           (antlr4::ParserRuleContext *ctx);
   //   ctx is the read or write instruction
   void readWriteRequireBasic        (antlr4::ParserRuleContext *ctx);
   //   ctx is the instruction that needs a referenceable expression
@@ -105,6 +106,9 @@ public:
   //   ctx is the program node (grammar start symbol) 
   void noMainProperlyDeclared       (antlr4::ParserRuleContext *ctx);
 
+  // Semantic error for PAIR types ====================================
+  void nonPairInPairAccess          (antlr4::ParserRuleContext *ctx);
+  // ==================================================================
 
 private:
 
@@ -113,7 +117,6 @@ private:
     ErrorInfo() = delete;
     ErrorInfo(std::size_t line, std::size_t coln, std::string message);
     std::size_t getLine() const;
-    std::size_t getColumnInLine() const;
     void print() const;
   private:
     std::size_t line, coln;
