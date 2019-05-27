@@ -122,6 +122,12 @@ public:
   
   void enterBasicParamDecl(AslParser::BasicParamDeclContext *ctx);
   void exitBasicParamDecl(AslParser::BasicParamDeclContext *ctx);
+  
+  void enterPairDecl(AslParser::PairDeclContext *ctx);
+  void exitPairDecl(AslParser::PairDeclContext *ctx);
+  
+  void enterPairParamDecl(AslParser::PairParamDeclContext *ctx);
+  void exitPairParamDecl(AslParser::PairParamDeclContext *ctx);
 
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);

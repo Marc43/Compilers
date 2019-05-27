@@ -389,6 +389,51 @@ void SymbolsListener::enterIdent(AslParser::IdentContext *ctx) {
 void SymbolsListener::exitIdent(AslParser::IdentContext *ctx) {
   DEBUG_EXIT();
 }
+  
+void SymbolsListener::enterPairDecl(AslParser::PairDeclContext *ctx){
+  DEBUG_ENTER();
+}
+  
+void SymbolsListener::exitPairDecl(AslParser::PairDeclContext *ctx){
+  for (auto ident_gram : ctx->ident()) {
+      std::string ident = ident_gram->ID()->getText();
+      if (Symbols.findInCurrentScope(ident)) {
+          Errors.declaredIdent(ident_gram->ID());
+      }
+      else {
+          TypesMgr::TypeId t1 = getTypeDecor(ctx->type(0));
+          TypesMgr::TypeId t2 = getTypeDecor(ctx->type(1));
+
+          TypesMgr::TypeId type = Types.createPairTy(t1, t2);
+
+          Symbols.addParameter(ident, type);
+      }
+  }
+
+  DEBUG_EXIT();
+}
+  
+void SymbolsListener::enterPairParamDecl(AslParser::PairParamDeclContext *ctx){
+  DEBUG_ENTER();
+}
+  
+void SymbolsListener::exitPairParamDecl(AslParser::PairParamDeclContext *ctx){
+      std::string ident = ctx->ID()->getText();
+      if (Symbols.findInCurrentScope(ident)) {
+          Errors.declaredIdent(ctx->ID());
+      }
+      else {
+          TypesMgr::TypeId t1 = getTypeDecor(ctx->type(0));
+          TypesMgr::TypeId t2 = getTypeDecor(ctx->type(1));
+
+          TypesMgr::TypeId type = Types.createPairTy(t1, t2);
+
+          Symbols.addParameter(ident, type);
+      }
+
+  DEBUG_EXIT();
+}
+
 
 // void SymbolsListener::enterEveryRule(antlr4::ParserRuleContext *ctx) {
 //   DEBUG_ENTER();

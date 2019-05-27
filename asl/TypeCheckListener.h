@@ -106,6 +106,9 @@ public:
 
   void enterIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx);
   void exitIndexArrayLeftExpr(AslParser::IndexArrayLeftExprContext *ctx);
+  
+  void enterPairAccessLeftExpr(AslParser::PairAccessLeftExprContext *ctx);
+  void exitPairAccessLeftExpr(AslParser::PairAccessLeftExprContext *ctx);
  
   void enterIdentifier(AslParser::IdentifierContext *ctx);
   void exitIdentifier(AslParser::IdentifierContext *ctx);
@@ -154,6 +157,12 @@ public:
 
   void enterParenthesis(AslParser::ParenthesisContext *ctx);
   void exitParenthesis(AslParser::ParenthesisContext *ctx);
+
+  void enterPair_access(AslParser::Pair_accessContext *ctx);
+  void exitPair_access(AslParser::Pair_accessContext *ctx);
+
+  void enterPairAccessExpr(AslParser::PairAccessExprContext *ctx);
+  void exitPairAccessExpr(AslParser::PairAccessExprContext *ctx);
 
   // void enterEveryRule(antlr4::ParserRuleContext *ctx);
   // void exitEveryRule(antlr4::ParserRuleContext *ctx);

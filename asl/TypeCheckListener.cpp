@@ -77,7 +77,7 @@ void TypeCheckListener::enterFunction(AslParser::FunctionContext *ctx) {
 
   TypesMgr::TypeId functype = getTypeDecor(ctx); 
   //Check if it's really a function? TODO
-  Symbols.setCurrentFunctionTy(functype);
+//  Symbols.setCurrentFunctionTy(functype);
 
   // Symbols.print();
 }
@@ -415,12 +415,12 @@ void TypeCheckListener::exitReturnStmt(AslParser::ReturnStmtContext *ctx) {
 
       if (not ctx->expr() and (not Types.isErrorTy(returntype)) and
               (not Types.isVoidTy(returntype))) {
-            Errors.incompatibleReturn(ctx->RETURN());
+            Errors.incompatibleReturn(ctx);
       }
 
       if ((not Types.isErrorTy(returntype)) and (not Types.isErrorTy(exprtype)) and
               (not Types.copyableTypes(returntype, exprtype))) {
-            Errors.incompatibleReturn(ctx->RETURN());
+            Errors.incompatibleReturn(ctx);
       }
   }
 
@@ -572,7 +572,48 @@ void TypeCheckListener::exitParenthesis(AslParser::ParenthesisContext *ctx) {
   putIsLValueDecor(ctx, b);
   DEBUG_EXIT();
 }
+  
+void TypeCheckListener::enterPair_access(AslParser::Pair_accessContext *ctx) {
+  DEBUG_ENTER();
+}
+  
+void TypeCheckListener::exitPair_access(AslParser::Pair_accessContext *ctx) {
+  TypesMgr::TypeId t = getTypeDecor(ctx->ident());
 
+  TypesMgr::TypeId t1 = Types.getFirstPairType(t);
+  TypesMgr::TypeId t2 = Types.getSecondPairType(t); 
+  
+  if (ctx->FIRST()) {
+    putTypeDecor(ctx, t1);
+  }
+  else if(ctx->SECOND()) {
+    putTypeDecor(ctx, t2);
+  }
+
+  putIsLValueDecor(ctx, true);
+  
+  DEBUG_EXIT();
+}
+  
+void TypeCheckListener::enterPairAccessExpr(AslParser::PairAccessExprContext *ctx) {
+  DEBUG_ENTER();
+}
+ 
+void TypeCheckListener::exitPairAccessExpr(AslParser::PairAccessExprContext *ctx) {
+  putTypeDecor(ctx, getTypeDecor(ctx->pair_access()));
+  putIsLValueDecor(ctx, false);
+  DEBUG_EXIT();
+}
+  
+void TypeCheckListener::enterPairAccessLeftExpr(AslParser::PairAccessLeftExprContext *ctx) {
+  DEBUG_ENTER();
+}
+  
+void TypeCheckListener::exitPairAccessLeftExpr(AslParser::PairAccessLeftExprContext *ctx) {
+  putTypeDecor(ctx, getTypeDecor(ctx->pair_access()));
+  putIsLValueDecor(ctx, true);
+  DEBUG_EXIT();
+}
 
 // void TypeCheckListener::enterEveryRule(antlr4::ParserRuleContext *ctx) {
 //   DEBUG_ENTER();

@@ -1,0 +1,4 @@
+line 1:0 mismatched input 'Line' expecting {<EOF>, 'function'}
+line 1:53 token recognition error at: '.'
+line 2:44 token recognition error at: '.'
+There are syntax errors.

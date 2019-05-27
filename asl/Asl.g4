@@ -46,15 +46,17 @@ declarations
         ;
 
 param_decl
-        : ID ':' ARRAY LCLAU expr RCLAU OF type # arrayParamDecl
-        | ID ':' type                           # basicParamDecl
+        : ID ':' PAIR type','type ENDPAIR                           # pairParamDecl
+        | ID ':' ARRAY LCLAU expr RCLAU OF type                     # arrayParamDecl
+        | ID ':' type                                               # basicParamDecl
         ;
 
 variable_decl
         : VAR decl 
         ;
 
-decl    : ident (','ident)* ':' ARRAY LCLAU expr RCLAU OF type      # arrayDecl
+decl    : ident (','ident)* ':' PAIR type','type ENDPAIR            # pairDecl
+        | ident (','ident)* ':' ARRAY LCLAU expr RCLAU OF type      # arrayDecl
      	| ID (','ID)* ':' type                                      # basicDecl 
         ;
 
@@ -97,9 +99,16 @@ array_access
         : ident LCLAU expr RCLAU
         ;
 
+pair_access
+        : ident FIRST 
+
+        | ident SECOND
+        ;
+
 // Grammar for left expressions (l-values in C++)
 left_expr
         : array_access                        # indexArrayLeftExpr
+        | pair_access                         # pairAccessLeftExpr
         | ident                               # identifier
         ;
 
@@ -108,6 +117,8 @@ expr    : LPAREN expr RPAREN                  # parenthesis
         | functioncall                        # functionAsExpr
 
         | array_access                        # indexArrayExpr
+
+        | pair_access                         # pairAccessExpr
 
         | (op=NOT|op=PLUS|op=SUB) expr        # unary 
 
@@ -161,6 +172,8 @@ MUL       : '*';
 DIV       : '/';
 MOD       : '%';
 VAR       : 'var';
+PAIR      : 'pair';
+ENDPAIR   : 'endpair';
 INT       : 'int';
 FLOAT     : 'float';
 BOOL      : 'bool';
@@ -184,6 +197,8 @@ FLOATVAL  : ('0'..'9')+('.'('0'..'9')+)? ;
 // Strings (in quotes) with escape sequences
 STRING    : '"' ( ESC_SEQ | ~('\\'|'"') )* '"' ;
 CHARS     : '\''( . | '\\n' )?'\'';
+FIRST     : '.first' ;
+SECOND    : '.second';
 // No influyen en la gramática, son solo para simplificar...
 fragment
 ESC_SEQ   : '\\' ('b'|'t'|'n'|'f'|'r'|'"'|'\''|'\\') ;
